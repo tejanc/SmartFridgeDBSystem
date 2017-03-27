@@ -15,6 +15,7 @@ echo "GG this is a good day";
 //QUERY DATABASE TO SEE IF USER EXIST 
 //USE PARAMETERS TO AVOID SQL INJECTION 
 $query= "set search_path = 'DBProject'";
+pg_query($dbconn,$query);
 $query1 = "SELECT * FROM food";
 //$query = 'SELECT * FROM "DBProject.food";';
 
