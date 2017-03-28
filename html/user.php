@@ -30,6 +30,5 @@ function getMeals() {
     echo "<br />\n";
   }
 }
-
 ?>
 
