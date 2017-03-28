@@ -38,8 +38,7 @@
             var content = xmlhttp.responseText; 
             if( content ){ 
               document.getElementById('info').innerHTML = content; 
-              document.getElementById('btn-div').innerHTML = 
-              "<a class = 'btn btn-primary text' id='backbtn' onclick='back()''>Back</a>";
+              jQuery('#btn-div').load('html/user-ordermeal.html');
             }
         }
       }
