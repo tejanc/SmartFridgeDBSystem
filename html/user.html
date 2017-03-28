@@ -21,11 +21,13 @@
       }
       return xmlhttp;
     }
-
+    
+    // Returns to the default regular user landing page
     function back() {
       jQuery('#master').load('html/user-land.html');
     }
 
+    // Queries the database for a list of meals and displays the result
     function getMeals()
     {
       var xmlhttp=makeRequestObject();
@@ -44,6 +46,13 @@
       xmlhttp.send(null) 
     }
   </script>
+
+  <style>
+    table, th, td {
+      border: 1px solid black;
+      border-collapse: collapse;
+    }
+  </style>
 </head>
 
 <body>

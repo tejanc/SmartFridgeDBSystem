@@ -12,9 +12,9 @@ $dbconn = pg_connect($conn_string) or die ("Connection failed");
 $query= "set search_path = 'smartfridge'";
 
 if(isset($_GET['runFunction']) && function_exists($_GET['runFunction']))
-call_user_func($_GET['runFunction']);
+  call_user_func($_GET['runFunction']);
 else
-echo "Function not found or wrong input";
+  echo "Function not found or wrong input";
 
 function getMeals() {
   $query1 = "SELECT * FROM MEALS";
@@ -25,10 +25,14 @@ function getMeals() {
     exit;
   }
 
+  echo "<table style='width:100%'>";
+  echo "<tr style='font-weight:bold'><td>MealID</td>" . "<td>Name</td>" . "<td>Description</td>" . "<td>Cuisine</td>" . "<td>Select</td>" . "</tr>";
   while ($row = pg_fetch_row($result)) {
-    echo "FoodId: $row[0]  Name: $row[2]";
-    echo "<br />\n";
+    echo "<tr><td>" . "$row[0]" . "</td><td>" . "$row[2]" . "</td><td>" . "$row[3]" . "</td><td>" . "$row[4]" . "</td>";
+    echo "<td>" . "<input type='radio' name='meal_radio'>" . "</td>";
+    echo "</tr>";
   }
+  echo "</table>";
 }
 ?>
 
