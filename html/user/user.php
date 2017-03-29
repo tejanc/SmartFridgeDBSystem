@@ -44,17 +44,23 @@ function searchFoodByName() {
   $search_result = pg_fetch_row($result);
 
   if (!$search_result) {
-    echo "<div class='div-center'>";
+    echo "<center>";
     echo "Error: food not found.";
-    echo "</div>";
+    echo "</center>";
     exit;
   } else {
     $food_id = $search_result[0];
     $food_name = $search_result[1];
     $food_count = $search_result[4];
 
-    if ($user_input_quantity > $food_count) {
+    if (!is_numeric($user_input_quantity)) {
+      echo "<div class='div-center'>";
+      echo "Error: please enter a quantity.";
+      echo "</div>";
+    } else if ($user_input_quantity > $food_count) {
+      echo "<div class='div-center'>";
       echo "Error: Only $food_count left of ingredient $food_name!";
+      echo "</div>";
     } else {
       $new_food_count = $food_count - $user_input_quantity;
       placeFoodOrder($food_id, $food_name, $new_food_count);
