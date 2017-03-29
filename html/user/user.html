@@ -6,6 +6,7 @@
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.0/jquery.min.js">
   </script>
   <script language="JavaScript" type="text/JavaScript">
+
     // Makes xmlhttp requests
     function makeRequestObject(){
       var xmlhttp=false; 
@@ -30,11 +31,12 @@
     }
 
     // Loads the buttons for the ordering ingredient menu 
-    function foodMenu() {
+    function openFoodMenu() {
         jQuery('#info').load("html/user/user-food.html");
         jQuery('#btn-div').empty();
     }
 
+    // Allows the user to search for an ingredient by name
     function getFoodByName() {
       var xmlhttp=makeRequestObject();
       var file = 'html/user/user.php?runFunction=getFoodByName'; 
@@ -48,12 +50,28 @@
             }
         }
       }
-      xmlhttp.send(null) 
+      xmlhttp.send(null); 
+    }
+
+    // Allows the user to search for an ingredient by category
+    function getFoodByCategory() {
+      var xmlhttp=makeRequestObject();
+      var file = 'html/user/user.php?runFunction=getFoodByCategory'; 
+      xmlhttp.open('GET', file, true);
+      xmlhttp.onreadystatechange=function() {
+        if (xmlhttp.readyState==4 && xmlhttp.status == 200) { 
+            var content = xmlhttp.responseText; 
+            if( content ){ 
+              document.getElementById('info').innerHTML = content; 
+              jQuery('#btn-div').empty();
+            }
+        }
+      }
+      xmlhttp.send(null); 
     }
 
     // Queries the database for a list of meals for order and displays the result
-    function getMeals()
-    {
+    function getMeals() {
       var xmlhttp=makeRequestObject();
       var file = 'html/user/user.php?runFunction=getMeals'; 
       xmlhttp.open('GET', file, true);
@@ -66,7 +84,7 @@
             }
         }
       }
-      xmlhttp.send(null) 
+      xmlhttp.send(null);
     }
   </script>
 
