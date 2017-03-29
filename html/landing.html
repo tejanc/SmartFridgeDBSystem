@@ -9,7 +9,7 @@
 		Retrieve an item from the fridge or request a meal.
 		</p>
 		</div>
-		<a class = "btn btn-primary user-btn">USER</a>
+		<a class = "btn btn-primary user">USER</a>
 	</div>
 	<div class="col-lg-4 text-center">
 		<img class="img-circle" src = "html/images/Chef.png"><img>
@@ -35,9 +35,6 @@ $(document).ready(function() {
     $('.user').click(function(){
       $(".page").load("html/user/user.html");
     }); 
-    $('.user-btn').click(function(){
-      $(".page").load("html/user/user.html")
-    });
     $(".chef").click(function(){
       $(".page").load("html/chef/chef.html");
     });
