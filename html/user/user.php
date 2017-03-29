@@ -24,24 +24,38 @@ function getMeals() {
     echo "An error occurred.\n";
     exit;
   }
-  echo "<form method='post' action='html/user.php?runFunction=orderMeal'>";
+  echo "<form target = 'meal_order_sent_frame' method='post' action='html/user/user.php?runFunction=orderMeal'>";
   echo "<table style='width:100%'>";
   echo "<tr style='font-weight:bold'><td>MealID</td>" . "<td>Name</td>" . "<td>Description</td>" . "<td>Cuisine</td>" . "<td>Select</td>" . "</tr>";
   while ($row = pg_fetch_row($result)) {
     echo "<tr><td>" . "$row[0]" . "</td><td>" . "$row[2]" . "</td><td>" . "$row[3]" . "</td><td>" . "$row[4]" . "</td>";
-    echo "<td>" . "<input type='radio' name='meal_radio' value='$row[0]'>" . "</td>";
+    echo "<td>" . "<input type='radio' name='meal_radio' value='$row[2]'>" . "</td>";
     echo "</tr>";
   }
   echo "</table>";
-  echo "<input id='submit' name='submit' type='submit' value='Send' class='btn btn-primary' onclick='ordTest()'>";
+  echo "<br><iframe name='meal_order_sent_frame' height='35' width='1000' scrolling='no' src='html/user/order-meal-iframe-default.html'></iframe>";
+  echo "<br><a class = 'btn btn-primary text' id='backbtn' onclick='back()''>Back</a> &nbsp;";
+  echo "<input id='submit' name='submit' type='submit' value='Order Meal' class='btn btn-primary'><br><br>";
+  echo "</div>";
   echo "</form>";
 }
 
 function orderMeal() {
   if (isset($_POST['meal_radio'])) { 
     $selected_meal = $_POST['meal_radio'];
-    echo "Selected: " . $selected_meal;
+    echo "<div class='div-center'>";
+    echo "Order successfully placed for: " . $selected_meal . "!";
+    echo "</div>";
+  } else {
+    echo "<div class='div-center'>";
+    echo "Please select a meal to order first!";
+    echo "</div>";
   }
 }
 ?>
 
+<style>
+.div-center {
+      text-align:center;
+    }
+</style>

@@ -18,10 +18,26 @@
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
   <script language="JavaScript" type="text/JavaScript"></script>
 </head>
-    <div class="panel panel-default padding" id="info">
-    </div>
-    <div id = "orderinfo"></div></br>
+    
+    <script>
+        $('#submit').click(function()
+        {
+            $.ajax({
+                url: html/user.php,
+                type:'POST',
+                data:
+                {
+                    selected_meal: $('meal_radio'),
+                },
+                success: function(msg)
+                {
+                    alert('Email Sent');
+                }               
+            });
+        });
+    </script>
+    SHIT
     <div id="btn-div">
-        <a class = 'btn btn-primary text' id="backbtn" onclick='back()''>Back</a>
-        <a class = "btn btn-primary text" id ="ordermealbtn" onclick="orderMeal()">Order Meal</a> 
+    <a class = 'btn btn-primary text' id="backbtn" onclick='back()''>Back!!!!</a>
     </div>
+</html>
