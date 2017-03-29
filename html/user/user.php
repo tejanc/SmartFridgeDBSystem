@@ -74,7 +74,6 @@ function orderMeal() {
   }
 }
 ?>
-
 <style>
   .div-center {
       text-align:center;
