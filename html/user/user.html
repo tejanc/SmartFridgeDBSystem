@@ -29,7 +29,29 @@
       jQuery('#master').load('html/user/user-land.html');
     }
 
-    // Queries the database for a list of meals and displays the result
+    // Loads the buttons for the ordering ingredient menu 
+    function foodMenu() {
+        jQuery('#info').load("html/user/user-food.html");
+        jQuery('#btn-div').empty();
+    }
+
+    function getFoodByName() {
+      var xmlhttp=makeRequestObject();
+      var file = 'html/user/user.php?runFunction=getFoodByName'; 
+      xmlhttp.open('GET', file, true);
+      xmlhttp.onreadystatechange=function() {
+        if (xmlhttp.readyState==4 && xmlhttp.status == 200) { 
+            var content = xmlhttp.responseText; 
+            if( content ){ 
+              document.getElementById('info').innerHTML = content; 
+              jQuery('#btn-div').empty();
+            }
+        }
+      }
+      xmlhttp.send(null) 
+    }
+
+    // Queries the database for a list of meals for order and displays the result
     function getMeals()
     {
       var xmlhttp=makeRequestObject();
@@ -45,10 +67,6 @@
         }
       }
       xmlhttp.send(null) 
-    }
-
-    function ordTest() {
-      window.alert("working!");
     }
   </script>
 
