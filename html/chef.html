@@ -27,7 +27,7 @@ function makeRequestObject(){
 function showdata()
 {
    var xmlhttp=makeRequestObject();
-   var file = 'html/user.php?runFunction=newMeals'; 
+   var file = 'html/chef.php?runFunction=newMeals'; 
    xmlhttp.open('GET', file, true);
    xmlhttp.onreadystatechange=function() {
       if (xmlhttp.readyState==4 && xmlhttp.status == 200) { 
@@ -38,6 +38,22 @@ function showdata()
       }
    }
    xmlhttp.send(null) 
+}
+
+function addMeal()
+{
+	var xmlhttp=makeRequestObject();
+	var file = 'html/chef.php?runFunction=';
+	xmlhttp.open('GET', file, true);
+	xmlhttp.onreadystatechange=function(){
+		if (xmlhttp.readyState==4 && xmlhttp.status == 200) {
+			var content = xmlhttp.responseText;
+			if ( content ) {
+				document.getElementById('info').innerHTML = content;
+			}
+		}
+	}
+	xmlhttp.send(null)
 }
 </script>
 </head>
@@ -50,7 +66,7 @@ function showdata()
 		Please select an option:
 		</p>
 		</div>
-		<a class = "btn btn-primary text" id="getfoodbtn" onclick="showdata()">New Meals</a>
+		<a class = "btn btn-primary text" id="newmealsbtn" onclick="addMeal()">New Meals</a>
 		<a class = "btn btn-primary text">Place Orders</a>
 		<a class = "btn btn-primary text">Reports</a>
 		<div id="info"></div>
