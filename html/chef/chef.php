@@ -15,18 +15,18 @@ else
 
 function createMeal() {
 	
-	$query1 = "SELECT * FROM INGREDIENTS";
-	$result = pg_query($GLOBALS['dbconn'], $query1);
-
-  	// A form to get input about the new meal from the chef
-	echo "<form>";
-	echo "Meal Name:";
+	echo "<br>Chef ID: &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp";
+	echo "<input type = 'text' name = 'chef_id_str'><br>"; 
+	echo "Meal Name: &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp";
 	echo "<input type = 'text' name = 'meal_name_str'><br>";
-	echo "Meal Description:";
+	echo "Meal Description: &nbsp";
 	echo "<input type = 'text' name = 'meal_desc_str'><br>";
-	echo "Cuisine:";
+	echo "Cuisine: &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp";
 	echo "<input type = 'text' name = 'meal_cuis_str'><br>";
 	echo "</form>";
+	
+	$query1 = "SELECT * FROM INGREDIENTS";
+	$result = pg_query($GLOBALS['dbconn'], $query1);
   
 	// shows a table with all the ingredients for the chef to select from.
 	if (!$result) {
@@ -39,44 +39,83 @@ function createMeal() {
 		echo "<tr style='font-weight:bold'> <td>Ingredient Id</td>" . "<td>Name</td>" . "<td>Expiry Date</td>" . "<td>Price</td>" . "<td>Count</td>" . "<td>Category</td>" . "<td>Select</td>" . "</tr>";
 		while ($row = pg_fetch_row($result)) {
 		  echo "<tr><td>" . "$row[0]" . "</td><td>" . "$row[1]" . "</td><td>" . "$row[2]" . "</td><td>" . "$row[3]" . "</td><td>" . "$row[4]" . "</td><td>" . "$row[5]" . "</td>";
-		  echo "<td>" . "<input type='checkbox' name='ingredient_checkbox[]' value='$row[0],$row[1],$row[2],$row[3],$row[4],$row[5]'>" . "</td>";
+		  echo "<td>" . "<input type='checkbox' name='ingredient_checkbox[]' value='$row[0]'>" . "</td>";
 		  echo "</tr>";
 		}
 		echo "</table>";
-		echo "<br><iframe name='meal_create_sent_frame' height='35' width='1000' scrolling='yes' src='html/chef/create-meal-iframe-default.html'></iframe>";
+		echo "<br><iframe name='meal_create_sent_frame' height='200' width='1000' scrolling='yes' src='html/chef/create-meal-iframe-default.html'></iframe>";
 		echo "<br><a class = 'btn btn-primary text' id='backbtn' onclick='back()''>Back</a> &nbsp;";
-		echo "<a class = 'btn btn-primary text' id='create_meal_btn' onclick='addMeal()''>Create Meal</a> &nbsp;";
+		echo "<input id='submit' name='submit' type='submit' value='Create Meal' class='btn btn-primary'><br><br>";
 		echo "</div>";
 		echo "</form>";
 	}
 }
 
+// check whether an ingredient is checked.
+function isChecked($chkname,$value) {
+	if (!empty($_POST[$chkname])) {
+		foreach($_POST[$chkname] as $chkval) {
+			if ($chkval == $value) {
+				return true;
+			}
+		}
+	}
+	return false;
+}
+
 function addMeal() {
 	
-	$selected_ingredients[] = $_POST['ingredient_checkbox[]'];
+	if (isset($_POST['chef_id_str']))
+		$chef_id_str = $_POST['chef_id_str'];
+	if (isset($_POST['meal_name_str']))
+		$meal_name_str = $_POST['meal_name_str'];
+	if (isset($_POST['meal_desc_str']))
+		$meal_description_str = $_POST['meal_desc_str'];
+	if (isset($_POST['meal_cuis_str']))
+		$meal_cuisine_str = $_POST['meal_cuis_str'];
 	
-	// split up the selected fields to get each individual values in an array.
-	$meal_create_fields = explode(',',$selected_ingredients);
-	
-	// Make strings for SQL query
-	$meal_id_str = (string) $meal_create_fields[0];
-	$chef_id_str = (string) $meal_create_fields[1];
-	$meal_name_str = (string) $meal_create_fields[2];
-	$meal_description_str = (string) $meal_create_fields[3];
-	$meal_cuisine_str =(string) $meal_create_fields[4];
-	
-	// Query to the MEAL table
-	$meal_create_query = "INSERT INTO MEALS(Meal_id, Chef_id, Name, Descr, Cuisine) VALUES (" . $meal_id_str ."," . $chef_id_str . "," . $meal_name_str . "," . $meal_description_str . "," . $meal_cuisine_str . ", false); ";
-	
-	if(empty('ingredient_checkbox[]')) {
-		echo("You didn't select anything.");
-		return;
-	} else {
+	if (isset($_POST['selected_ingredients[]'])) {
+		$selected_ingredients[] = $_POST['ingredient_checkbox[]'];
+		// Make strings for SQL query
+		$ing_id = (string) $selected_ingredients[0];
+		$meal_id_query = "SELECT (Meal_id) FROM MEALS WHERE Meal_id = (SELECT max(Meal_id) FROM MEALS)";
+		$max_meal_id = pg_query($GLOBALS['dbconn'], $meal_id_query);
+		if (!result) {
+			echo "An error occurred.\n";
+		} else {
+			$meal_id_str = $max_meal_id+1;
+		}
+		// Query to the MEAL table
+		$meal_create_query = "INSERT INTO MEALS(Meal_id, Chef_id, Name, Descr, Cuisine) VALUES (" . $meal_id_str ."," . $chef_id_str . "," . $meal_name_str . "," . $meal_description_str . "," . $meal_cuisine_str . ", false); ";
 		echo "Successfully created meal for: " . $meal_name_str . "!";
+		getMeals();
+	} else {
+		echo("You didn't select anything.");
 	}
-	
-	
-	
+}
+
+// Displays the list of available meals in a table
+function getMeals() {
+  $query1 = "SELECT * FROM MEALS";
+
+  $result = pg_query($GLOBALS['dbconn'], $query1);
+  if (!$result) {
+    echo "An error occurred.\n";
+    exit;
+  } else {
+    echo "<br>";
+    echo "<table style='width:100%'>";
+    echo "<tr style='font-weight:bold'><td>MealID</td>" . "<td>Name</td>" . "<td>Description</td>" . "<td>Cuisine</td>" . "</tr>";
+    while ($row = pg_fetch_row($result)) {
+      echo "<tr><td>" . "$row[0]" . "</td><td>" . "$row[2]" . "</td><td>" . "$row[3]" . "</td><td>" . "$row[4]" . "</td>";
+      echo "</tr>";
+    }
+    echo "</table>";
+    echo "<br><iframe name='meal_order_sent_frame' height='35' width='1000' scrolling='no' src='html/user/order-meal-iframe-default.html'></iframe>";
+    echo "<br><a class = 'btn btn-primary text' id='backbtn' onclick='back()''>Back</a> &nbsp;";
+    echo "</div>";
+    echo "</form>";
+  }
 }
 
 function placeOrder() {
