@@ -1,75 +1,78 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
 <html>
 <head>
 	<meta http-equiv="Content-Type content=text/html; charset=UTF-8">
-	<title>Title</title>
-	
-	<scripe type="text/javascript"></script>
-	<script></script>
-	
+	<title>Chef Page</title>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.0/jquery.min.js">
+	</script>
 	<script language="JavaScript" type="text/JavaScript">
-function makeRequestObject(){
-   var xmlhttp=false; 
-   try {
-      xmlhttp = new ActiveXObject('Msxml2.XMLHTTP');
-   } catch (e) {
-      try {
-         xmlhttp = new ActiveXObject('Microsoft.XMLHTTP'); 
-      } catch (E) {
-         xmlhttp = false;
-      }
-   }
-   if (!xmlhttp && typeof XMLHttpRequest!='undefined') {
-      xmlhttp = new XMLHttpRequest(); 
-   }
-   return xmlhttp;
-}
+	
+	// Makes xmlhttp requests
+	function makeRequestObject(){
+	   var xmlhttp=false; 
+	   try {
+		  xmlhttp = new ActiveXObject('Msxml2.XMLHTTP');
+	   } catch (e) {
+		  try {
+			 xmlhttp = new ActiveXObject('Microsoft.XMLHTTP'); 
+		  } catch (E) {
+			 xmlhttp = false;
+		  }
+	   }
+	   if (!xmlhttp && typeof XMLHttpRequest!='undefined') {
+		  xmlhttp = new XMLHttpRequest(); 
+	   }
+	   return xmlhttp;
+	}
 
-function showdata()
-{
-   var xmlhttp=makeRequestObject();
-   var file = 'html/chef.php?runFunction=newMeals'; 
-   xmlhttp.open('GET', file, true);
-   xmlhttp.onreadystatechange=function() {
-      if (xmlhttp.readyState==4 && xmlhttp.status == 200) { 
-         var content = xmlhttp.responseText; 
-         if( content ){ 
-            document.getElementById('info').innerHTML = content; 
-         }
-      }
-   }
-   xmlhttp.send(null) 
-}
-
-function addMeal()
-{
-	var xmlhttp=makeRequestObject();
-	var file = 'html/chef.php?runFunction=';
-	xmlhttp.open('GET', file, true);
-	xmlhttp.onreadystatechange=function(){
-		if (xmlhttp.readyState==4 && xmlhttp.status == 200) {
-			var content = xmlhttp.responseText;
-			if ( content ) {
-				document.getElementById('info').innerHTML = content;
+	// Returns the default Chef landing page
+	function back() {
+		jQuery('#master').load('html/chef/chef-land.html')
+	}
+	
+	function addMeal() {
+		var xmlhttp=makeRequestObject();
+		var file = 'html/chef/chef.php?runFunction=createMeal';
+		xmlhttp.open('GET',file,true);
+		xmlhttp.onreadystatechange=function() {
+			if (xmlhttp.readyState==4 && xmlhttp.status == 200) {
+				var content = xmlhttp.responseText;
+				if ( content ) {
+					document.getElementById('info').innerHTML = content;
+					jQuery("#btn-div").empty();
+				}
 			}
 		}
+		xmlhttp.send(null);
 	}
-	xmlhttp.send(null)
-}
-</script>
+	
+	</script>
+	
+	<style>
+    table, th, td {
+      border: 1px solid black;
+      border-collapse: collapse;
+    }
+
+    iframe {
+      border: solid 1px;
+      border-radius: 8px;
+      width: 80%;
+      min-height: 80%;
+      max-height: 80%;
+      color: black;
+      margin: 0 auto;
+    }
+	</style>
+	
 </head>
 
 <body>
 	<div class="text-center">
 		<img class="img-circle" src="html/images/Chef.png"><img>
-		<div class="panel panel-default padding">
-		<p class="text-center">
-		Please select an option:
-		</p>
+		<div id = "master">
+			<script>$('#master').load('html/chef/chef-land.html');</script>
 		</div>
-		<a class = "btn btn-primary text" id="newmealsbtn" onclick="addMeal()">New Meals</a>
-		<a class = "btn btn-primary text">Place Orders</a>
-		<a class = "btn btn-primary text">Reports</a>
-		<div id="info"></div>
 	</div>
 </body>
 </html>
