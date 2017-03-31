@@ -57,7 +57,7 @@ function makeRequestObject(){
 		jQuery('#master').load('html/chef/chef-land.html')
 	}
 	
-	function addMeal() {
+	function createMeal() {
 		var xmlhttp=makeRequestObject();
 		var file = 'html/chef/chef.php?runFunction=createMeal';
 		xmlhttp.open('GET',file,true);

@@ -2,7 +2,7 @@
 session_start();
 
 // Retrieve the users credentials for DB connection
-$conn_string= "host=localhost port=5432 dbname=postgres user=postgres password=postgres";
+$conn_string= "host=localhost port=5432 dbname=smartfridgedb user=postgres password=csi2132";
 
 // GET DB CONNECTION STRING
 $dbconn = pg_connect($conn_string) or die ("Connection failed");
@@ -14,7 +14,8 @@ else
 	echo "Function not found or wrong input";
 
 function createMeal() {
-	
+	echo "<br>";
+    echo "<form target = 'meal_create_sent_frame' method='post' action='html/chef/chef.php?runFunction=addMeal'>";
 	echo "<br>Chef ID: &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp";
 	echo "<input type = 'text' name = 'chef_id_str'><br>"; 
 	echo "Meal Name: &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp";
@@ -23,7 +24,6 @@ function createMeal() {
 	echo "<input type = 'text' name = 'meal_desc_str'><br>";
 	echo "Cuisine: &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp";
 	echo "<input type = 'text' name = 'meal_cuis_str'><br>";
-	echo "</form>";
 	
 	$query1 = "SELECT * FROM INGREDIENTS";
 	$result = pg_query($GLOBALS['dbconn'], $query1);
@@ -33,8 +33,6 @@ function createMeal() {
 		echo "An error occurred.\n";
 		exit;
 	} else {
-		echo "<br>";
-		echo "<form target = 'meal_create_sent_frame' method='post' action='html/chef/chef.php?runFunction=addMeal'>";
 		echo "<table style='width:100%'>";
 		echo "<tr style='font-weight:bold'> <td>Ingredient Id</td>" . "<td>Name</td>" . "<td>Expiry Date</td>" . "<td>Price</td>" . "<td>Count</td>" . "<td>Category</td>" . "<td>Select</td>" . "</tr>";
 		while ($row = pg_fetch_row($result)) {
@@ -64,7 +62,6 @@ function isChecked($chkname,$value) {
 }
 
 function addMeal() {
-	
 	if (isset($_POST['chef_id_str']))
 		$chef_id_str = $_POST['chef_id_str'];
 	if (isset($_POST['meal_name_str']))
@@ -73,25 +70,47 @@ function addMeal() {
 		$meal_description_str = $_POST['meal_desc_str'];
 	if (isset($_POST['meal_cuis_str']))
 		$meal_cuisine_str = $_POST['meal_cuis_str'];
-	
-	if (isset($_POST['selected_ingredients[]'])) {
-		$selected_ingredients[] = $_POST['ingredient_checkbox[]'];
-		// Make strings for SQL query
-		$ing_id = (string) $selected_ingredients[0];
-		$meal_id_query = "SELECT (Meal_id) FROM MEALS WHERE Meal_id = (SELECT max(Meal_id) FROM MEALS)";
-		$max_meal_id = pg_query($GLOBALS['dbconn'], $meal_id_query);
-		if (!result) {
-			echo "An error occurred.\n";
-		} else {
-			$meal_id_str = $max_meal_id+1;
-		}
-		// Query to the MEAL table
-		$meal_create_query = "INSERT INTO MEALS(Meal_id, Chef_id, Name, Descr, Cuisine) VALUES (" . $meal_id_str ."," . $chef_id_str . "," . $meal_name_str . "," . $meal_description_str . "," . $meal_cuisine_str . ", false); ";
-		echo "Successfully created meal for: " . $meal_name_str . "!";
-		getMeals();
-	} else {
-		echo("You didn't select anything.");
-	}
+
+    // get array of all checkbox values 
+
+    if (empty($selected_ingredients)) { 
+        echo "You didn't select anything.";
+    } else {
+        $selected_ingredients = $_POST['ingredient_checkbox'];
+        $meal_id_query = "SELECT Meal_id FROM MEALS ORDER BY Meal_id DESC LIMIT 1";
+        $meal_id_query_res = pg_query($GLOBALS['dbconn'], $meal_id_query);
+
+        if (!$meal_id_query_res) {
+            echo "An error occurred.\n";
+        } else {
+            $meal_id_query_row = pg_fetch_row($meal_id_query_res);
+            $max_meal_id = (int) $meal_id_query_row[0];
+            $meal_id_str = $max_meal_id+1;
+        }
+
+        // Create MEAL
+        $meal_create_query = "INSERT INTO MEALS(Meal_id, Chef_id, Name, Descr, Cuisine) VALUES (" . $meal_id_str ."," . $chef_id_str . ",'" . $meal_name_str . "','" . $meal_description_str . "','" . $meal_cuisine_str . "');";
+        $meal_create_query_res = pg_query($GLOBALS['dbconn'], $meal_create_query);
+
+        if (!$meal_create_query_res) {
+            echo "An error occurred.\n";
+        } else {
+            // Add ingredients to MEAL_CONTAINS relation
+            $N = count($selected_ingredients);
+
+            for ($i = 0; $i < $N; $i++) {
+                $add_ing_to_meal = "INSERT INTO MEAL_CONTAINS(Ing_id, Meal_id) VALUES($selected_ingredients[$i], $meal_id_str)";
+
+                $add_ing_to_meal_result = pg_query($GLOBALS['dbconn'], $add_ing_to_meal);
+
+                if (!$add_ing_to_meal_result) {
+                    echo "An error occurred.\n";
+                } 
+            }     
+            echo "Successfully created meal for: " . $meal_name_str . "!";
+        }
+        //getMeals();
+    }     
 }
 
 // Displays the list of available meals in a table
