@@ -125,7 +125,7 @@ CREATE TABLE FREQ_REQ_ING (
 );
 
 CREATE TABLE CHEF_ORDER (
-    Order_id  CHAR(6)   NOT NULL,
+    Order_id  SERIAL   NOT NULL,
     Meal_id   CHAR(6)   NOT NULL,
     Chef_id   CHAR(6)   NOT NULL,
     Approved  BOOLEAN   NOT NULL,
@@ -152,16 +152,6 @@ CREATE TABLE FRIDGE_ORDER (
     FOREIGN KEY (Admin_id) REFERENCES
       USERS (User_id)
 );
-
-CREATE TABLE ORDER_MEALS (
-    Meal_id   CHAR(6)   NOT NULL,
-    Order_id    CHAR(6)   NOT NULL,
-    PRIMARY KEY (Meal_id, Order_id),
-    FOREIGN KEY (Meal_id) REFERENCES
-      MEALS (Meal_id),
-    FOREIGN KEY (Order_id) REFERENCES
-      CHEF_ORDER (Order_id)
-); 
 
 /* HAVE TO FIGURE OUT:
    - How to make sure the right type of User_id
@@ -265,15 +255,6 @@ VALUES ('666669', '333333', '555555', 10),
        ('666669', '333333', '555557', 4),
        ('666669', '333333', '555560', 6);
 
-
-/* Create a CHEF_ORDER for some Pizza */
-INSERT INTO CHEF_ORDER(Order_id, Meal_id, Chef_id, Approved)
-VALUES ('777777', '444444', '111111', FALSE);
-
-/* Create a meal order for Pizza (ORDER_MEALS) */
-INSERT INTO ORDER_MEALS(Meal_id, Order_id)
-VALUES ('444444', '777777');
-
 /* Create a FRIDGE_ORDER for some more Tomatoes */
 INSERT INTO FRIDGE_ORDER(Order_id, Ing_id, Chef_id, Admin_id, Approved)
 VALUES ('777778', '555555', '111111', '333333', FALSE);
@@ -281,7 +262,7 @@ VALUES ('777778', '555555', '111111', '333333', FALSE);
 /* DROP ALL TABLES */
 DROP TABLE USERS, TOP_THREE_INGS, EXPENSES, REPORT,
            FREQ_REQ_MEALS, FREQ_REQ_ING, CHEF_ORDER,
-           FRIDGE_ORDER, ORDER_MEALS, MEALS, INGREDIENTS,
+           FRIDGE_ORDER, MEALS, INGREDIENTS,
            MEAL_CONTAINS;
            
 

@@ -1,0 +1,118 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+  <title>Regular User Page</title>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.0/jquery.min.js">
+  </script>
+  <script language="JavaScript" type="text/JavaScript">
+
+    // Makes xmlhttp requests
+    function makeRequestObject(){
+      var xmlhttp=false; 
+      try {
+        xmlhttp = new ActiveXObject('Msxml2.XMLHTTP');
+      } catch (e) {
+        try {
+           xmlhttp = new ActiveXObject('Microsoft.XMLHTTP'); 
+        } catch (E) {
+           xmlhttp = false;
+        }
+      }
+      if (!xmlhttp && typeof XMLHttpRequest!='undefined') {
+        xmlhttp = new XMLHttpRequest(); 
+      }
+      return xmlhttp;
+    }
+    
+    // Returns to the default regular user landing page
+    function back() {
+      jQuery('#master').load('html/user/user-land.html');
+    }
+
+    // Loads the buttons for the ordering ingredient menu 
+    function openFoodMenu() {
+        jQuery('#info').load("html/user/user-food.html");
+        jQuery('#btn-div').empty();
+    }
+
+    // Allows the user to search for an ingredient by name
+    function getFoodByName() {
+      var xmlhttp=makeRequestObject();
+      var file = 'html/user/user.php?runFunction=getFoodByName'; 
+      xmlhttp.open('GET', file, true);
+      xmlhttp.onreadystatechange=function() {
+        if (xmlhttp.readyState==4 && xmlhttp.status == 200) { 
+            var content = xmlhttp.responseText; 
+            if( content ){ 
+              document.getElementById('info').innerHTML = content; 
+              jQuery('#btn-div').empty();
+            }
+        }
+      }
+      xmlhttp.send(null); 
+    }
+
+    // Allows the user to search for an ingredient by category
+    function getFoodByCategory() {
+      var xmlhttp=makeRequestObject();
+      var file = 'html/user/user.php?runFunction=getFoodByCategory'; 
+      xmlhttp.open('GET', file, true);
+      xmlhttp.onreadystatechange=function() {
+        if (xmlhttp.readyState==4 && xmlhttp.status == 200) { 
+            var content = xmlhttp.responseText; 
+            if( content ){ 
+              document.getElementById('info').innerHTML = content; 
+              jQuery('#btn-div').empty();
+            }
+        }
+      }
+      xmlhttp.send(null); 
+    }
+
+    // Queries the database for a list of meals for order and displays the result
+    function getMeals() {
+      var xmlhttp=makeRequestObject();
+      var file = 'html/user/user.php?runFunction=getMeals'; 
+      xmlhttp.open('GET', file, true);
+      xmlhttp.onreadystatechange=function() {
+        if (xmlhttp.readyState==4 && xmlhttp.status == 200) { 
+            var content = xmlhttp.responseText; 
+            if( content ){ 
+              document.getElementById('info').innerHTML = content; 
+              jQuery('#btn-div').empty();
+            }
+        }
+      }
+      xmlhttp.send(null);
+    }
+  </script>
+
+  <style>
+    table, th, td {
+      border: 1px solid black;
+      border-collapse: collapse;
+    }
+
+    iframe {
+      border: solid 1px;
+      border-radius: 8px;
+      width: 80%;
+      min-height: 80%;
+      max-height: 80%;
+      color: black;
+      margin: 0 auto;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="text-center">
+    <img class="img-circle" src = "html/images/User.png"><img>
+    <div id = "master">
+      <script>$('#master').load('html/user/user-land.html');</script>
+    </div>
+  </div>
+</body>
+</html>
+
