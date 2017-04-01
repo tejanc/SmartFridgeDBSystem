@@ -141,17 +141,6 @@ function placeOrder() {
 	if (isset($_POST['quantity_requested']))
 		$selected_quantities = $_POST['quantity_requested'];
 	
-	// sets order_id to the maximum + 1
-	$order_id_query = "SELECT order_id FROM FRIDGE_ORDER ORDER BY order_id DESC LIMIT 1";
-    $order_id_query_res = pg_query($GLOBALS['dbconn'], $order_id_query);
-	if (!$order_id_query_res) {
-		echo "An error occurred.\n";
-	} else {
-		$order_id_query_row = pg_fetch_row($order_id_query_res);
-		$max_order_id = (int) $order_id_query_row[0];
-		$order_id_str = $max_order_id+1;
-	}
-	
 	// sets the chef_id already set in the Database
 	$chef_id_query = "SELECT user_id FROM USERS WHERE cflag = '1'";
     $chef_id_query_res = pg_query($GLOBALS['dbconn'], $chef_id_query);
@@ -180,7 +169,18 @@ function placeOrder() {
 		$N = count($selected_ingredients);
 		
 		for ($i = 0; $i < $N; $i++) {
-			$ing_order_query = "INSERT INTO FRIDGE_ORDER(Order_id, Ing_id, Count, Chef_id, Admin_id, Approved) VALUES (" . $order_id_str . "," . $selected_ingredients[$i] . "," . $quantity_requested[$i] . "," . $chef_id_str . "," . $admin_id_str . "," . false . ");";
+			
+			// sets order_id to the maximum + 1
+			$order_id_query = "SELECT order_id FROM FRIDGE_ORDER ORDER BY order_id DESC LIMIT 1";
+			$order_id_query_res = pg_query($GLOBALS['dbconn'], $order_id_query);
+			if (!$order_id_query_res) {
+				echo "An error occurred.\n";
+			} else {
+				$order_id_query_row = pg_fetch_row($order_id_query_res);
+				$max_order_id = (int) $order_id_query_row[0];
+				$order_id_str = $max_order_id+1;
+			}
+			$ing_order_query = "INSERT INTO FRIDGE_ORDER(Order_id, Ing_id, Count, Chef_id, Admin_id, Approved) VALUES (" . $order_id_str . "," . $selected_ingredients[$i] . "," . $selected_quantities[$i] . "," . $chef_id_str . "," . $admin_id_str . ", false);";
 			
 			$ing_order_query_res = pg_query($GLOBALS['dbconn'], $ing_order_query);
 			

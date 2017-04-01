@@ -137,7 +137,7 @@ CREATE TABLE FREQ_REQ_ING (
 );
 
 CREATE TABLE CHEF_ORDER (
-    Order_id  CHAR(6)   NOT NULL,
+    Order_id  SERIAL   NOT NULL,
     Meal_id   CHAR(6)   NOT NULL,
     Chef_id   CHAR(6)   NOT NULL,
     Approved  BOOLEAN   NOT NULL,
@@ -150,8 +150,8 @@ CREATE TABLE CHEF_ORDER (
 );
 
 CREATE TABLE FRIDGE_ORDER (
-    Order_id    CHAR(6)   NOT NULL,
-	Count 	  	INTEGER   NOT NULL,
+    Order_id    SERIAL   NOT NULL,
+    Count 	  	INTEGER   NOT NULL,
     Ing_id      CHAR(6)   NOT NULL,
     Chef_id     CHAR(6)   NOT NULL,
     Admin_id    CHAR(6)   NOT NULL,
@@ -167,8 +167,8 @@ CREATE TABLE FRIDGE_ORDER (
 );
 
 CREATE TABLE ORDER_MEALS (
-    Meal_id   CHAR(6)   NOT NULL,
-    Order_id    CHAR(6)   NOT NULL,
+    Meal_id     CHAR(6)   NOT NULL,
+    Order_id    SERIAL   NOT NULL,
     PRIMARY KEY (Meal_id, Order_id),
     FOREIGN KEY (Meal_id) REFERENCES
       MEALS (Meal_id),
