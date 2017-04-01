@@ -1,3 +1,5 @@
+/* test */
+
 CREATE TABLE USERS (
     User_id     CHAR(6)     NOT NULL,
     Cflag       BOOLEAN     NOT NULL,
