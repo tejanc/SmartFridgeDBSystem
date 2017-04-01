@@ -2,7 +2,7 @@
 session_start();
 
 // Retrieve the users credentials for DB connection
-$conn_string= "host=localhost port=5432 dbname=postgres user=postgres password=postgres";
+$conn_string= "host=localhost port=5432 dbname=smartfridgedb user=postgres password=csi2132";
 
 // GET DB CONNECTION STRING
 $dbconn = pg_connect($conn_string) or die ("Connection failed");
@@ -136,8 +136,8 @@ function getMeals() {
 */
 function placeOrder() {
 	
-	if (isset($_POST['ingredient_checkbox']))
-		$selected_ingredients = $_POST['ingredient_checkbox'];
+
+
 	if (isset($_POST['quantity_requested']))
 		$selected_quantities = $_POST['quantity_requested'];
 	
@@ -161,37 +161,37 @@ function placeOrder() {
 		$admin_id_str = (int) $admin_id_query_row[0];
 	}
 	
-	if (empty($selected_ingredients) || empty($selected_quantities)) { 
-        echo "You didn't select anything or didn't specify a quantity value.";
+	if (empty($selected_quantities)) { 
+        echo "You didn't select anything.";
     } else {
 		
 		// Create a FRIDGE_ORDER
-		$N = count($selected_ingredients);
+		$N = count($selected_quantities);
 		
-		for ($i = 0; $i < $N; $i++) {
+		// Get list of depleted ingredients again
+		// $N = # of rows
+		$no_ing_query = "SELECT * FROM INGREDIENTS WHERE Count = '0'";
+		$no_ing_query_res = pg_query($GLOBALS['dbconn'], $no_ing_query);
+
+
+		for ($i = 0; $i < $N; $i++) {			
+			// Fetch current depleted ingredient row
+			$row = pg_fetch_row($no_ing_query_res);
+
+			if (is_numeric($selected_quantities[$i]) && $selected_quantities[$i] > 0) {
+			$ing_order_query = "INSERT INTO FRIDGE_ORDER(Ing_id, Count, Chef_id, Admin_id, Approved) VALUES (" . $row[0] . "," . $selected_quantities[$i] . "," . $chef_id_str . "," . $admin_id_str . ", false);";
 			
-			// sets order_id to the maximum + 1
-			$order_id_query = "SELECT order_id FROM FRIDGE_ORDER ORDER BY order_id DESC LIMIT 1";
-			$order_id_query_res = pg_query($GLOBALS['dbconn'], $order_id_query);
-			if (!$order_id_query_res) {
-				echo "An error occurred.\n";
-			} else {
-				$order_id_query_row = pg_fetch_row($order_id_query_res);
-				$max_order_id = (int) $order_id_query_row[0];
-				$order_id_str = $max_order_id+1;
-			}
-			$ing_order_query = "INSERT INTO FRIDGE_ORDER(Order_id, Ing_id, Count, Chef_id, Admin_id, Approved) VALUES (" . $order_id_str . "," . $selected_ingredients[$i] . "," . $selected_quantities[$i] . "," . $chef_id_str . "," . $admin_id_str . ", false);";
+				$ing_order_query_res = pg_query($GLOBALS['dbconn'], $ing_order_query);
 			
-			$ing_order_query_res = pg_query($GLOBALS['dbconn'], $ing_order_query);
-			
-			if (!$ing_order_query_res) {
+				if (!$ing_order_query_res) {
                     echo "An error occurred.\n";
-			}      
+				}    
+			}  
 		}
 		echo "Successfully created fridge order!";
 	}
 
-	showFridgeOrder();
+	//showFridgeOrder();
 }
 
 function showFridgeOrder() {
@@ -221,8 +221,8 @@ function showFridgeOrder() {
 function showDepletedIngredients() {
 	
 	$no_ing_query = "SELECT * FROM INGREDIENTS WHERE Count = '0'";
-	
 	$no_ing_query_res = pg_query($GLOBALS['dbconn'], $no_ing_query);
+
 	echo "<form target = 'place_order_sent_frame' method='post' action='html/chef/chef.php?runFunction=placeOrder'>";
 	if (!$no_ing_query_res) {
 		echo "An error occurred.\n";
@@ -230,10 +230,9 @@ function showDepletedIngredients() {
 	} else {
 		echo "<br>";
 		echo "<table style='width:100%'>";
-		echo "<tr style='font-weight:bold'> <td>Ingredient Id</td>" . "<td>Name</td>" . "<td>Expiry Date</td>" . "<td>Price</td>" . "<td>Count</td>" . "<td>Category</td>" . "<td>Select</td>" . "<td>Quantity</td>" . "</tr>";
+		echo "<tr style='font-weight:bold'> <td>Ingredient Id</td>" . "<td>Name</td>" . "<td>Expiry Date</td>" . "<td>Price</td>" . "<td>Count</td>" . "<td>Category</td>" . "<td>Select</td>" . "</tr>";
 		while ($row = pg_fetch_row($no_ing_query_res)) {
 		  echo "<tr><td>" . "$row[0]" . "</td><td>" . "$row[1]" . "</td><td>" . "$row[2]" . "</td><td>" . "$row[3]" . "</td><td>" . "$row[4]" . "</td><td>" . "$row[5]" . "</td>";
-		  echo "<td>" . "<input type='checkbox' name='ingredient_checkbox[]' value='$row[0]'>" . "</td>";
 		  echo "<td>" . "<input type='text' name='quantity_requested[]'>" . "</td>";
 		  echo "</tr>";
 		}
