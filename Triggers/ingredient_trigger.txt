@@ -1,0 +1,18 @@
+
+CREATE OR REPLACE FUNCTION order_ingredients() RETURNS TRIGGER AS
+$BODY$
+BEGIN
+    INSERT INTO
+    FRIDGE_ORDER(count, ing_id, admin_id, approved) 
+    VALUES(5, NEW.ing_id, 111111, 'false');
+    RETURN new;
+END;
+$BODY$
+language plpgsql;
+
+
+CREATE TRIGGER INGREDIENT_THRESHOLD_REACHED 
+    AFTER INSERT OR UPDATE ON INGREDIENTS 
+    FOR EACH ROW
+	WHEN (NEW.count < 1)
+	EXECUTE PROCEDURE order_ingredients();

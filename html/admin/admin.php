@@ -26,9 +26,9 @@ function getFridgeRequest()
     echo "<br>";
     echo "<form target = 'order_approved_frame' method='post' action='html/admin/admin.php?runFunction=approveOrders'>";
     echo "<table style='width:100%'>";
-    echo "<tr style='font-weight:bold'><td>order_id</td>" . "<td>count</td>" . "<td>ing_id</td>" . "<td>chef_id</td>" . "<td>admin_id</td>" . "<td>approved</td>" . "<td>Accept?</td></tr>";
+    echo "<tr style='font-weight:bold'><td>order_id</td>" . "<td>count</td>" . "<td>ing_id</td>" . "<td>admin_id</td>" . "<td>approved</td>" . "<td>Accept?</td></tr>";
     while ($row = pg_fetch_row($result)) {
-      echo "<tr><td>" . "$row[0]" . "</td><td>" . "$row[1]" . "</td><td>" . "$row[2]" . "</td><td>" . "$row[3]" . "</td><td>"."$row[4]"."</td><td>" . "$row[5]" . "</td>";
+      echo "<tr><td>" . "$row[0]" . "</td><td>" . "$row[1]" . "</td><td>" . "$row[2]" . "</td><td>" . "$row[3]" . "</td><td>"."$row[4]"."</td>";
       echo "<td>" . "<input type='checkbox' name='order_checkbox[]' value='$row[0],$row[1],$row[2]'>" . "</td>";
       echo "</tr>";
     }
