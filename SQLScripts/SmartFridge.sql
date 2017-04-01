@@ -1,4 +1,4 @@
--- Database: "SmartFridge"
+﻿-- Database: "SmartFridge"
 
 -- DROP DATABASE "SmartFridge";
 

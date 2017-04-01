@@ -24,21 +24,6 @@ function makeRequestObject(){
    return xmlhttp;
 }
 
-function showdata()
-{
-   var xmlhttp=makeRequestObject();
-   var file = 'html/user.php?runFunction=newMeals'; 
-   xmlhttp.open('GET', file, true);
-   xmlhttp.onreadystatechange=function() {
-      if (xmlhttp.readyState==4 && xmlhttp.status == 200) { 
-         var content = xmlhttp.responseText; 
-         if( content ){ 
-            document.getElementById('info').innerHTML = content; 
-         }
-      }
-   }
-   xmlhttp.send(null) 
-}
 </script>
 
 <html>
@@ -72,9 +57,41 @@ function showdata()
 		jQuery('#master').load('html/chef/chef-land.html')
 	}
 	
-	function addMeal() {
+	function createMeal() {
 		var xmlhttp=makeRequestObject();
 		var file = 'html/chef/chef.php?runFunction=createMeal';
+		xmlhttp.open('GET',file,true);
+		xmlhttp.onreadystatechange=function() {
+			if (xmlhttp.readyState==4 && xmlhttp.status == 200) {
+				var content = xmlhttp.responseText;
+				if ( content ) {
+					document.getElementById('info').innerHTML = content;
+					jQuery("#btn-div").empty();
+				}
+			}
+		}
+		xmlhttp.send(null);
+	}
+	
+	function placeOrders() {
+		var xmlhttp=makeRequestObject();
+		var file = 'html/chef/chef.php?runFunction=showDepletedIngredients';
+		xmlhttp.open('GET',file,true);
+		xmlhttp.onreadystatechange=function() {
+			if (xmlhttp.readyState==4 && xmlhttp.status == 200) {
+				var content = xmlhttp.responseText;
+				if ( content ) {
+					document.getElementById('info').innerHTML = content;
+					jQuery("#btn-div").empty();
+				}
+			}
+		}
+		xmlhttp.send(null);
+	}
+	
+	function reports() {
+		var xmlhttp=makeRequestObject();
+		var file = 'html/chef/chef.php?runFunction=reports';
 		xmlhttp.open('GET',file,true);
 		xmlhttp.onreadystatechange=function() {
 			if (xmlhttp.readyState==4 && xmlhttp.status == 200) {
