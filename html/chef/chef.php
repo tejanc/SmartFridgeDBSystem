@@ -2,7 +2,7 @@
 session_start();
 
 // Retrieve the users credentials for DB connection
-$conn_string= "host=localhost port=5432 dbname=smartfridgedb user=postgres password=csi2132";
+$conn_string= "host=localhost port=5432 dbname=postgres user=postgres password=postgres";
 
 // GET DB CONNECTION STRING
 $dbconn = pg_connect($conn_string) or die ("Connection failed");
@@ -50,6 +50,7 @@ function createMeal() {
 }
 
 function addMeal() {
+	
 	if (isset($_POST['chef_id_str']))
 		$chef_id_str = $_POST['chef_id_str'];
 	if (isset($_POST['meal_name_str']))
@@ -98,7 +99,7 @@ function addMeal() {
             }     
             echo "Successfully created meal for: " . $meal_name_str . "!";
         }
-        getMeals();
+        //getMeals();
     }     
 }
 
@@ -222,7 +223,8 @@ function showDepletedIngredients() {
 	
 	$no_ing_query = "SELECT * FROM INGREDIENTS WHERE Count = '0'";
 	$no_ing_query_res = pg_query($GLOBALS['dbconn'], $no_ing_query);
-
+	
+	echo "<br><h1>Place an order</h1></br>";
 	echo "<form target = 'place_order_sent_frame' method='post' action='html/chef/chef.php?runFunction=placeOrder'>";
 	if (!$no_ing_query_res) {
 		echo "An error occurred.\n";
@@ -237,7 +239,7 @@ function showDepletedIngredients() {
 		  echo "</tr>";
 		}
 		echo "</table>";
-		echo "<br><iframe name='place_order_sent_frame' height='400' width='1000' scrolling='no' src='html/chef/place-order-iframe-default.html'></iframe>";
+		echo "<br><iframe name='place_order_sent_frame' height='50' width='1000' scrolling='no' src='html/chef/place-order-iframe-default.html'></iframe>";
 		echo "<br><a class = 'btn btn-primary text' id='backbtn' onclick='back()''>Back</a> &nbsp;";
 		echo "<input id='submit' name='submit' type='submit' value='Place Order' class='btn btn-primary'><br><br>";
 		echo "</div>";
