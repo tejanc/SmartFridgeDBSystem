@@ -75,7 +75,7 @@ function makeRequestObject(){
 	
 	function placeOrders() {
 		var xmlhttp=makeRequestObject();
-		var file = 'html/chef/chef.php?runFunction=placeOrder';
+		var file = 'html/chef/chef.php?runFunction=showDepletedIngredients';
 		xmlhttp.open('GET',file,true);
 		xmlhttp.onreadystatechange=function() {
 			if (xmlhttp.readyState==4 && xmlhttp.status == 200) {

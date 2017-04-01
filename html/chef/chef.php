@@ -2,7 +2,7 @@
 session_start();
 
 // Retrieve the users credentials for DB connection
-$conn_string= "host=localhost port=5432 dbname=smartfridgedb user=postgres password=csi2132";
+$conn_string= "host=localhost port=5432 dbname=postgres user=postgres password=postgres";
 
 // GET DB CONNECTION STRING
 $dbconn = pg_connect($conn_string) or die ("Connection failed");
@@ -49,18 +49,6 @@ function createMeal() {
 	}
 }
 
-// check whether an ingredient is checked.
-function isChecked($chkname,$value) {
-	if (!empty($_POST[$chkname])) {
-		foreach($_POST[$chkname] as $chkval) {
-			if ($chkval == $value) {
-				return true;
-			}
-		}
-	}
-	return false;
-}
-
 function addMeal() {
 	if (isset($_POST['chef_id_str']))
 		$chef_id_str = $_POST['chef_id_str'];
@@ -72,11 +60,12 @@ function addMeal() {
 		$meal_cuisine_str = $_POST['meal_cuis_str'];
 
     // get array of all checkbox values 
-
+	$selected_ingredients = $_POST['ingredient_checkbox'];
+	
     if (empty($selected_ingredients)) { 
         echo "You didn't select anything.";
     } else {
-        $selected_ingredients = $_POST['ingredient_checkbox'];
+       
         $meal_id_query = "SELECT Meal_id FROM MEALS ORDER BY Meal_id DESC LIMIT 1";
         $meal_id_query_res = pg_query($GLOBALS['dbconn'], $meal_id_query);
 
@@ -109,7 +98,7 @@ function addMeal() {
             }     
             echo "Successfully created meal for: " . $meal_name_str . "!";
         }
-        //getMeals();
+        getMeals();
     }     
 }
 
@@ -137,8 +126,105 @@ function getMeals() {
   }
 }
 
+/*
+	A chef can request an ingredient to be orderdered.
+		1. CHEF 		---- < REQUESTS_ING > ---- FRIDGE_ORDER
+		2. FRIDGE_ORDER ---- < ORDER_ING 	> ---- INGREDIENTS
+		3. INGREDIENTS  ---- < EXP_REPORT 	> ---- EXPENSES
+		4. EXPENSES		---- < VIEWS		> ---- ADMIN
+		5. ADMIN		---- < APPROVES		> ---- FRIDGE_ORDER
+*/
 function placeOrder() {
 	
+	showDepletedIngredients();
+
+	if (isset($_POST['ingredient_checkbox']))
+		$selected_ingredients = $_POST['ingredient_checkbox'];
+	if (isset($_POST['quantity_requested']))
+		$selected_quantities = $_POST['quantity_requested'];
+	
+	// sets order_id to the maximum + 1
+	$order_id_query = "SELECT order_id FROM FRIDGE_ORDER ORDER BY order_id DESC LIMIT 1";
+    $order_id_query_res = pg_query($GLOBALS['dbconn'], $order_id_query);
+	if (!$order_id_query_res) {
+		echo "An error occurred.\n";
+	} else {
+		$order_id_query_row = pg_fetch_row($order_id_query_res);
+		$max_order_id = (int) $order_id_query_row[0];
+		$order_id_str = $max_order_id+1;
+	}
+	
+	// sets the chef_id already set in the Database
+	$chef_id_query = "SELECT user_id FROM USERS WHERE cflag = '1'";
+    $chef_id_query_res = pg_query($GLOBALS['dbconn'], $chef_id_query);
+	if (!$chef_id_query_res) {
+		echo "An error occurred.\n";
+	} else {
+		$chef_id_query_row = pg_fetch_row($chef_id_query_res);
+		$chef_id_str = (int) $chef_id_query_row[0];
+	}
+	
+	// sets the admin_id already set in the Database
+	$admin_id_query = "SELECT user_id FROM USERS WHERE cflag = '1'";
+    $admin_id_query_res = pg_query($GLOBALS['dbconn'], $admin_id_query);
+	if (!$admin_id_query_res) {
+		echo "An error occurred.\n";
+	} else {
+		$admin_id_query_row = pg_fetch_row($admin_id_query_res);
+		$admin_id_str = (int) $admin_id_query_row[0];
+	}
+	
+	if (empty($selected_ingredients) || empty($selected_quantities)) { 
+        echo "You didn't select anything or didn't specify a quantity value.";
+    } else {
+		
+		// Create a FRIDGE_ORDER
+		$N = count($selected_ingredients);
+		
+		for ($i = 0; $i < $N; $i++) {
+			$ing_order_query = "INSERT INTO FRIDGE_ORDER(Order_id, Ing_id, Count, Chef_id, Admin_id, Approved) VALUES (" . $order_id_str . "," . $selected_ingredients[$i] . "," . $quantity_requested[$i] . "," . $chef_id_str . "," . $admin_id_str . "," . false . ");";
+			
+			$ing_order_query_res = pg_query($GLOBALS['dbconn'], $ing_order_query);
+			
+			if (!$ing_order_query_res) {
+                    echo "An error occurred.\n";
+			}      
+		}
+		echo "Successfully created fridge order!";
+	}	
+}
+
+/*
+ Shows the chef a list of all ingredients that are depleted.
+ Then it propts the chef with a form where he can specify
+ the ingredient that they wish to order.
+ */
+function showDepletedIngredients() {
+	
+	$no_ing_query = "SELECT * FROM INGREDIENTS WHERE Count = '0'";
+	
+	$no_ing_query_res = pg_query($GLOBALS['dbconn'], $no_ing_query);
+	echo "<form target = 'place_order_sent_frame' method='post' action='html/chef/chef.php?runFunction=placeOrder'>";
+	if (!$no_ing_query_res) {
+		echo "An error occurred.\n";
+		exit;
+	} else {
+		echo "<br>";
+		echo "<table style='width:100%'>";
+		echo "<tr style='font-weight:bold'> <td>Ingredient Id</td>" . "<td>Name</td>" . "<td>Expiry Date</td>" . "<td>Price</td>" . "<td>Count</td>" . "<td>Category</td>" . "<td>Select</td>" . "<td>Quantity</td>" . "</tr>";
+		while ($row = pg_fetch_row($no_ing_query_res)) {
+		  echo "<tr><td>" . "$row[0]" . "</td><td>" . "$row[1]" . "</td><td>" . "$row[2]" . "</td><td>" . "$row[3]" . "</td><td>" . "$row[4]" . "</td><td>" . "$row[5]" . "</td>";
+		  echo "<td>" . "<input type='checkbox' name='ingredient_checkbox[]' value='$row[0]'>" . "</td>";
+		  echo "<td>" . "<input type='text' name='quantity_requested[]'>" . "</td>";
+		  echo "</tr>";
+		}
+		echo "</table>";
+		echo "<br><iframe name='place_order_sent_frame' height='30' width='1000' scrolling='no' src='html/chef/place-order-iframe-default.html'></iframe>";
+		echo "<br><a class = 'btn btn-primary text' id='backbtn' onclick='back()''>Back</a> &nbsp;";
+		echo "<input id='submit' name='submit' type='submit' value='Place Order' class='btn btn-primary'><br><br>";
+		echo "</div>";
+		echo "</form>";
+	}
 }
 
 function reports() {

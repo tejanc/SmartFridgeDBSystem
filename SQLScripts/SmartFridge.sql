@@ -1,0 +1,305 @@
+﻿-- Database: "SmartFridge"
+
+-- DROP DATABASE "SmartFridge";
+
+CREATE DATABASE "SmartFridge"
+  WITH OWNER = postgres
+       ENCODING = 'UTF8'
+       TABLESPACE = pg_default
+       LC_COLLATE = 'English_United States.1252'
+       LC_CTYPE = 'English_United States.1252'
+       CONNECTION LIMIT = -1;
+
+CREATE TABLE USERS (
+    User_id     CHAR(6)     NOT NULL,
+    Cflag       BOOLEAN     NOT NULL,
+    RUflag      BOOLEAN     NOT NULL,
+    Aflag       BOOLEAN     NOT NULL,
+    Lname       VARCHAR(25) NOT NULL,
+    Fname       VARCHAR(25) NOT NULL,
+    PRIMARY KEY (User_id),
+    UNIQUE(User_id),
+    /* Ensures two things:
+         1. At least one flag is true.
+         2. At most one flag is true.
+       i.e. A USER is exlusively either a 
+            Chef, Regular User or Admin.
+    */
+    CHECK (   
+           NOT (Cflag IS TRUE AND 
+                Ruflag IS TRUE AND 
+                Aflag IS TRUE) 
+           AND NOT (Cflag IS TRUE AND
+                    RUflag IS TRUE) 
+           AND NOT (Cflag IS TRUE AND
+                    Aflag IS TRUE) 
+           AND NOT (RUflag IS TRUE AND
+                    Aflag IS TRUE)
+           AND (Cflag = TRUE OR
+                RUflag = TRUE OR
+                Aflag = TRUE)
+    )   
+);
+
+CREATE TABLE MEALS (
+    Meal_id   CHAR(6)       NOT NULL,
+    Chef_id   CHAR(6)       NOT NULL,
+    Name      VARCHAR(100)  NOT NULL,
+    Descr     VARCHAR(300)  NOT NULL,
+    Cuisine   VARCHAR(40)   NOT NULL,
+    PRIMARY KEY (Meal_id, Chef_id),
+    UNIQUE(Meal_id),
+    FOREIGN KEY (Chef_id) REFERENCES 
+      USERS (User_id)
+);
+
+CREATE TABLE INGREDIENTS (
+    Ing_id    CHAR(6)      NOT NULL,
+    Name      VARCHAR(30)  NOT NULL,
+    Exp_date  DATE         NOT NULL,
+    Price     MONEY        NOT NULL,
+    Count     INTEGER      NOT NULL,
+    Category  VARCHAR(40)  NOT NULL,
+    PRIMARY KEY (Ing_id),
+    UNIQUE(Ing_id)
+);
+
+CREATE TABLE MEAL_CONTAINS (
+    Ing_id  CHAR(6)   NOT NULL,
+    Meal_id CHAR(6)   NOT NULL,
+    PRIMARY KEY (Ing_id, Meal_id),
+    FOREIGN KEY (Ing_id) REFERENCES
+      INGREDIENTS (Ing_id),
+    FOREIGN KEY (Meal_id) REFERENCES
+      MEALS (Meal_id)
+);
+
+CREATE TABLE REPORT (
+    Report_id   CHAR(6)   NOT NULL,
+    PRIMARY KEY (Report_id),
+    UNIQUE(Report_id)
+);
+
+CREATE TABLE TOP_THREE_INGS (
+    Report_id CHAR(6)   NOT NULL,
+    Admin_id  CHAR(6)   NOT NULL,
+    Ing_id    CHAR(6)   NOT NULL,
+    Rank      INTEGER   NOT NULL,
+    PRIMARY KEY (Report_id, Admin_id, Ing_id),
+    FOREIGN KEY (Report_id) REFERENCES
+      REPORT (Report_id),
+    FOREIGN KEY (Admin_id) REFERENCES 
+      USERS(User_id),
+    FOREIGN KEY (Ing_id) REFERENCES 
+      INGREDIENTS(Ing_id)
+);
+
+CREATE TABLE EXPENSES (
+    Report_id   CHAR(6)   NOT NULL,
+    Admin_id    CHAR(6)   NOT NULL,
+    Ing_id      CHAR(6)   NOT NULL,
+    IngPrice    MONEY     NOT NULL,
+    PRIMARY KEY (Report_id, Admin_id, Ing_id),
+    FOREIGN KEY (Report_id) REFERENCES
+      REPORT (Report_id),
+    FOREIGN KEY (Admin_id) REFERENCES
+      USERS (User_id),
+    FOREIGN KEY (Ing_id) REFERENCES
+      INGREDIENTS (Ing_id)
+);
+
+CREATE TABLE FREQ_REQ_MEALS (
+    Report_id   CHAR(6)   NOT NULL,
+    Admin_id    CHAR(6)   NOT NULL,
+    Meal_id     CHAR(6)   NOT NULL,
+    Count       INTEGER   NOT NULL,
+    PRIMARY KEY (Report_id, Admin_id, Meal_id),
+    FOREIGN KEY (Report_id) REFERENCES
+      REPORT (Report_id),
+    FOREIGN KEY (Admin_id) REFERENCES
+      USERS (User_id),
+    FOREIGN KeY (Meal_id) REFERENCES
+      MEALS (Meal_id)
+);
+
+CREATE TABLE FREQ_REQ_ING (
+    Report_id   CHAR(6)   NOT NULL,
+    Admin_id    CHAR(6)   NOT NULL,
+    Ing_id      CHAR(6)   NOT NULL,
+    Count       INTEGER   NOT NULL,
+    PRIMARY KEY (Report_id, Admin_id, Ing_id),
+    FOREIGN KEY (Report_id) REFERENCES
+      REPORT (Report_id),
+    FOREIGN KEY (Admin_id) REFERENCES
+      USERS (User_id),
+    FOREIGN KEY (Ing_id) REFERENCES
+      INGREDIENTS (Ing_id)
+);
+
+CREATE TABLE CHEF_ORDER (
+    Order_id  CHAR(6)   NOT NULL,
+    Meal_id   CHAR(6)   NOT NULL,
+    Chef_id   CHAR(6)   NOT NULL,
+    Approved  BOOLEAN   NOT NULL,
+    PRIMARY KEY (Order_id, Meal_id, Chef_id),
+    UNIQUE(Order_id),
+    FOREIGN KEY (Meal_id) REFERENCES
+      MEALS (Meal_id),
+    FOREIGN KEY (Chef_id) REFERENCES
+      USERS (User_id)   
+);
+
+CREATE TABLE FRIDGE_ORDER (
+    Order_id    CHAR(6)   NOT NULL,
+	Count 	  	INTEGER   NOT NULL,
+    Ing_id      CHAR(6)   NOT NULL,
+    Chef_id     CHAR(6)   NOT NULL,
+    Admin_id    CHAR(6)   NOT NULL,
+    Approved    BOOLEAN   NOT NULL,
+    PRIMARY KEY (Order_id, Ing_id, Chef_id, Admin_id),
+    UNIQUE(Order_id),
+    FOREIGN KEY (Ing_id) REFERENCES
+      INGREDIENTS (Ing_id),
+    FOREIGN KEY (Chef_id) REFERENCES
+      USERS (User_id),
+    FOREIGN KEY (Admin_id) REFERENCES
+      USERS (User_id)
+);
+
+CREATE TABLE ORDER_MEALS (
+    Meal_id   CHAR(6)   NOT NULL,
+    Order_id    CHAR(6)   NOT NULL,
+    PRIMARY KEY (Meal_id, Order_id),
+    FOREIGN KEY (Meal_id) REFERENCES
+      MEALS (Meal_id),
+    FOREIGN KEY (Order_id) REFERENCES
+      CHEF_ORDER (Order_id)
+); 
+
+/* HAVE TO FIGURE OUT:
+   - How to make sure the right type of User_id
+     is entered for foreign keys specific to a type
+     of user (e.g. FRIDGE_ORDER Chef_id and Admin_id)
+*/
+
+/* Add three users to the database: 
+   1. John Smith - Chef
+   2. Jane Doe - Regular user
+   3. Hank Scorpio - Administrator
+*/
+INSERT INTO USERS(User_id, Cflag, RUflag, Aflag, Lname, Fname)
+VALUES('111111', TRUE, FALSE, FALSE, 'Smith', 'John'),
+      ('222222', FALSE, TRUE, FALSE, 'Doe', 'Jane'),
+      ('333333', FALSe, FALSE, TRUE, 'Scorpio', 'Hank');
+
+/* Add some meals to the database */
+INSERT INTO MEALS(Meal_id, Chef_id, Name, Descr, Cuisine)
+VALUES ('444444', '111111', 'Pizza', 'A pepperoni pizza.', 'Italian'),
+       ('444445', '111111', 'Hamburger', 'A delicious hamburger.', 'American'),
+       ('444446', '111111', 'Poutine', 'A Canadian classic!', 'Canadian');
+
+/* Add some ingredients to the database */
+INSERT INTO INGREDIENTS(Ing_id, Name, Exp_date, Price, Count, Category)
+VALUES ('555555', 'Tomato', '2017-03-23', '2.10', 12, 'Vegetable'),
+       ('555556', 'Ground Beef', '2017-03-20', '4.00', 6, 'Meat'),
+       ('555557', 'Cheese', '2017-03-23', '1.20', 1, 'Dairy'),
+       ('555558', 'Cheese Curds', '2017-03-19', '1.30', '1', 'Dairy'),
+       ('555559', 'Pizza Dough', '2017-03-25', '4.00', 1, 'Grains'),
+       ('555560', 'French Fries', '2017-04-01', '3.50', 1, 'Vegetable'),
+       ('555561', 'Gravy', '2019-01-19', '3.00', 1, 'Sauce'),
+       ('555562', 'Burger Bun', '2017-03-22', '4.10', 4, 'Grains'),
+       ('555563', 'Pepperoni', '2017-03-20', '6.00', 1, 'Meat');
+
+/* Pair up ingredients with meals */
+INSERT INTO MEAL_CONTAINS(Ing_id, Meal_id)
+VALUES 
+  /* Tomatoes -> Pizza 
+     Cheese -> Pizza 
+     Pizza Dough -> Pizza 
+     Pepperoni -> Pizza
+  */
+  ('555555', '444444'),
+  ('555557', '444444'),
+  ('555559', '444444'),
+  ('555563', '444444'),
+  /* Ground Beef -> Hamburger
+     Burger Bun -> Hamburger
+  */
+  ('555556', '444445'),
+  ('555562', '444445'),
+  /* French Fries -> Poutine
+     Cheese Curds -> Poutine
+     Gravy -> Poutine
+  */
+  ('555560', '444446'),
+  ('555558', '444446'),
+  ('555561', '444446');
+
+/* Create some REPORT Ids */
+INSERT INTO REPORT(Report_id)
+VALUES ('666666'), /* TOP_THREE_INGS */
+       ('666667'), /* EXPENSES */
+       ('666668'), /* FREQ_REQ_MEALS */
+       ('666669'); /* FREQ_REQ_ING */
+
+/* Create a report of TOP_THREE_INGS (in ranked order)
+    (1) Tomato
+    (2) Cheese
+    (3) French Fries
+*/
+INSERT INTO TOP_THREE_INGS(Report_id, Admin_id, Ing_id, Rank)
+VALUES ('666666', '333333', '555555', 1),
+       ('666666', '333333', '555557', 2),
+       ('666666', '333333', '555560', 3);
+
+/* Create a report of EXPENSES for
+    (1) Tomato
+    (2) Cheese
+    (3) French Fries
+*/ 
+INSERT INTO EXPENSES(Report_id, Admin_id, Ing_id, IngPrice)
+VALUES ('666667', '333333', '555555', '2.10'),
+       ('666667', '333333', '555557', '1.20'),
+       ('666667', '333333', '555560', '3.50');
+
+/* Create a report of FREQ_REQ_MEALS */
+INSERT INTO FREQ_REQ_MEALS(Report_id, Admin_id, Meal_id, Count)
+VALUES ('666668', '333333', '444444', 5), /* Pizza */
+       ('666668', '333333', '444445', 8), /* Hamburger */
+       ('666668', '333333', '444446', 3); /* Poutine */
+
+/* Create a report of FREQ_REQ_ING for
+    (1) Tomato
+    (2) Cheese
+    (3) French Fries
+*/
+INSERT INTO FREQ_REQ_ING(Report_id, Admin_id, Ing_id, Count)
+VALUES ('666669', '333333', '555555', 10),
+       ('666669', '333333', '555557', 4),
+       ('666669', '333333', '555560', 6);
+
+
+/* Create a CHEF_ORDER for some Pizza */
+INSERT INTO CHEF_ORDER(Order_id, Meal_id, Chef_id, Approved)
+VALUES ('777777', '444444', '111111', FALSE);
+
+/* Create a meal order for Pizza (ORDER_MEALS) */
+INSERT INTO ORDER_MEALS(Meal_id, Order_id)
+VALUES ('444444', '777777');
+
+/* Create a FRIDGE_ORDER for some more Tomatoes */
+INSERT INTO FRIDGE_ORDER(Order_id, Ing_id, count, Chef_id, Admin_id, Approved)
+VALUES ('777778', '555555', 1, '111111', '333333', FALSE);
+
+/* DROP ALL TABLES */
+DROP TABLE USERS, TOP_THREE_INGS, EXPENSES, REPORT,
+           FREQ_REQ_MEALS, FREQ_REQ_ING, CHEF_ORDER,
+           FRIDGE_ORDER, ORDER_MEALS, MEALS, INGREDIENTS,
+           MEAL_CONTAINS;
+           
+
+
+
+
+
+          
