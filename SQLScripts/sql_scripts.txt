@@ -139,7 +139,7 @@ CREATE TABLE FREQ_REQ_ING (
 );
 
 CREATE TABLE CHEF_ORDER (
-    Order_id  CHAR(6)   NOT NULL,
+    Order_id  SERIAL    NOT NULL,
     Meal_id   CHAR(6)   NOT NULL,
     Chef_id   CHAR(6)   NOT NULL,
     Approved  BOOLEAN   NOT NULL,
