@@ -136,8 +136,6 @@ function getMeals() {
 */
 function placeOrder() {
 	
-	showDepletedIngredients();
-
 	if (isset($_POST['ingredient_checkbox']))
 		$selected_ingredients = $_POST['ingredient_checkbox'];
 	if (isset($_POST['quantity_requested']))
@@ -191,7 +189,28 @@ function placeOrder() {
 			}      
 		}
 		echo "Successfully created fridge order!";
-	}	
+	}
+
+	showFridgeOrder();
+}
+
+function showFridgeOrder() {
+	$fridge_order_query = "SELECT * FROM FRIDGE_ORDER";
+	$fridge_order_query_res = pg_query($GLOBALS['dbconn'],$fridge_order_query);
+	if (!$fridge_order_query_res) {
+		echo "An error occurred.\n";
+		exit;
+	} else {
+		echo "<br>";
+		echo "<table style='width:100%'>";
+		echo "<tr style='font-weight:bold'><td>Order ID</td>" . "<td>Count</td>" . "<td>Ing ID</td>" . "<td>Chef ID</td>" . "</tr>";
+		while ($row = pg_fetch_row($fridge_order_query_res)) {
+		  echo "<tr><td>" . "$row[0]" . "</td><td>" . "$row[1]" . "</td><td>" . "$row[2]" . "</td><td>" . "$row[3]" . "</td>";
+		  echo "</tr>";
+		}
+		echo "</table>";
+		echo "<br><iframe name='meal_order_sent_frame' height='35' width='1000' scrolling='yes' src='html/user/place-order-iframe-default.html'></iframe>";
+	}
 }
 
 /*
