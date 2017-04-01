@@ -238,7 +238,7 @@ function showDepletedIngredients() {
 		  echo "</tr>";
 		}
 		echo "</table>";
-		echo "<br><iframe name='place_order_sent_frame' height='30' width='1000' scrolling='no' src='html/chef/place-order-iframe-default.html'></iframe>";
+		echo "<br><iframe name='place_order_sent_frame' height='400' width='1000' scrolling='no' src='html/chef/place-order-iframe-default.html'></iframe>";
 		echo "<br><a class = 'btn btn-primary text' id='backbtn' onclick='back()''>Back</a> &nbsp;";
 		echo "<input id='submit' name='submit' type='submit' value='Place Order' class='btn btn-primary'><br><br>";
 		echo "</div>";
