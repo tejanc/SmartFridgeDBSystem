@@ -1,15 +1,189 @@
+
+<meta http-equiv="pragma" content="no-cache" />
+<script>
+   // Makes xmlhttp requests
+    function makeRequestObject(){
+      var xmlhttp=false; 
+      try {
+        xmlhttp = new ActiveXObject('Msxml2.XMLHTTP');
+      } catch (e) {
+        try {
+           xmlhttp = new ActiveXObject('Microsoft.XMLHTTP'); 
+        } catch (E) {
+           xmlhttp = false;
+        }
+      }
+      if (!xmlhttp && typeof XMLHttpRequest!='undefined') {
+        xmlhttp = new XMLHttpRequest(); 
+      }
+      return xmlhttp;
+    }
+    
+    // Returns to the default regular user landing page
+    function back() {
+      jQuery('#master').load('html/user/user-land.html');
+    }
+
+    // Loads the buttons for the ordering ingredient menu 
+    function loadFridgeOrder() {
+	  var xmlhttp=makeRequestObject();
+	  var file = 'html/admin/admin.php?runFunction=getFridgeRequest';
+	  xmlhttp.open('GET', file, true);
+	  xmlhttp.onreadystatechange=function() {
+        if (xmlhttp.readyState==4 && xmlhttp.status == 200) { 
+            var content = xmlhttp.responseText; 
+            if( content ){ 
+			console.log(content);	
+            document.getElementById('info').innerHTML = content; 
+              //jQuery('#btn-div').empty();
+            }
+        }
+      }
+      xmlhttp.send(null); 			
+    //    jQuery('#info').load("html/user/user-food.html");
+    //    jQuery('#btn-div').empty();
+    }
+
+    // Allows the user to search for an ingredient by name
+    function getFoodByName() {
+      var xmlhttp=makeRequestObject();
+      var file = 'html/user/user.php?runFunction=getFoodByName'; 
+      xmlhttp.open('GET', file, true);
+      xmlhttp.onreadystatechange=function() {
+        if (xmlhttp.readyState==4 && xmlhttp.status == 200) { 
+            var content = xmlhttp.responseText; 
+            if( content ){ 
+              document.getElementById('.jumbotron').innerHTML = content; 
+              //jQuery('#btn-div').empty();
+            }
+        }
+      }
+      xmlhttp.send(null); 
+    }
+
+    // Allows the user to search for an ingredient by category
+    function getFoodByCategory() {
+      var xmlhttp=makeRequestObject();
+      var file = 'html/user/user.php?runFunction=getFoodByCategory'; 
+      xmlhttp.open('GET', file, true);
+      xmlhttp.onreadystatechange=function() {
+        if (xmlhttp.readyState==4 && xmlhttp.status == 200) { 
+            var content = xmlhttp.responseText; 
+			console.log(content);
+            if( content ){ 
+              document.getElementById('info').innerHTML = content; 
+              jQuery('#btn-div').empty();
+            }
+        }
+      }
+      xmlhttp.send(null); 
+    }
+
+    // Queries the database for a list of meals for order and displays the result
+    function getMeals() {
+      var xmlhttp=makeRequestObject();
+      var file = 'html/user/user.php?runFunction=getMeals'; 
+      xmlhttp.open('GET', file, true);
+      xmlhttp.onreadystatechange=function() {
+        if (xmlhttp.readyState==4 && xmlhttp.status == 200) { 
+            var content = xmlhttp.responseText; 
+			
+            if( content ){ 
+              document.getElementById('info').innerHTML = content; 
+              jQuery('#btn-div').empty();
+            }
+        }
+      }
+      xmlhttp.send(null);
+    }
+	
+	function FreqRequested(){
+	 var xmlhttp=makeRequestObject();
+	  var file = 'html/admin/admin.php?runFunction=FreqRequested';
+	  xmlhttp.open('GET', file, true);
+	  xmlhttp.onreadystatechange=function() {
+        if (xmlhttp.readyState==4 && xmlhttp.status == 200) { 
+            var content = xmlhttp.responseText; 
+            if( content ){ 
+			console.log(content);	
+            document.getElementById('info').innerHTML = content; 
+              //jQuery('#btn-div').empty();
+            }
+        }
+	}
+	xmlhttp.send(null); 
+	}
+	function TopThree()
+	{
+	 var xmlhttp=makeRequestObject();
+	  var file = 'html/admin/admin.php?runFunction=TopThree';
+	  xmlhttp.open('GET', file, true);
+	  xmlhttp.onreadystatechange=function() {
+        if (xmlhttp.readyState==4 && xmlhttp.status == 200) { 
+            var content = xmlhttp.responseText; 
+            if( content ){ 
+			console.log(content);	
+            document.getElementById('info').innerHTML = content; 
+              //jQuery('#btn-div').empty();
+            }
+        }
+	  }
+	   xmlhttp.send(null); 
+	}
+	function Expense()
+	{console.log("hi");
+	 var xmlhttp=makeRequestObject();
+	  var file = 'html/admin/admin.php?runFunction=Expense';
+	  xmlhttp.open('GET', file, true);
+	  xmlhttp.onreadystatechange=function() {
+        if (xmlhttp.readyState==4 && xmlhttp.status == 200) { 
+            var content = xmlhttp.responseText; 
+            if( content ){ 
+			console.log(content);	
+            document.getElementById('info').innerHTML = content; 
+              //jQuery('#btn-div').empty();
+            }
+        }
+	 }
+	  xmlhttp.send(null); 
+	}
+	function showReportOptions() {
+	document.getElementById('info').innerHTML = "<a class='btn btn-primary' onclick='TopThree()'>Show top three Ingredients</a><a class='btn btn-primary' onclick='Expense()'>Show Expense Report</a><a class='btn btn-primary' onclick='FreqRequested()'>Freq Requested Report</a>"; 
+	
+	
+	}
+  </script>
+
+  <style>
+    table, th, td {
+      border: 1px solid black;
+      border-collapse: collapse;
+    }
+
+    iframe {
+      border: solid 1px;
+      border-radius: 8px;
+      width: 80%;
+      min-height: 80%;
+      max-height: 80%;
+      color: black;
+      margin: 0 auto;
+    }
+  </style>
+
 <body>
   <div class="text-center">
     <img class="img-circle"src = "html/images/admin.png"><img>
     <div class="panel panel-default padding">
-    <p class="text-center">
+
+    <p class="text-center" id ="info">
     Please select an option:
     </p>
     </div>
-    <a class = "btn btn-primary text" id="getfoodbtn" onclick="showdata()">Place Orders</a>
-    <a class = "btn btn-primary text" id="getfoodbtn" onclick="showdata()">Approve Orders</a>
-    <a class = "btn btn-primary text" id="getfoodbtn" onclick="showdata()">Report</a>
-    <div id="info"></div>
+    <a class = "btn btn-primary text" id="getfoodbtn" onclick="loadFridgeOrder()">Place Orders</a>
+    <a class = "btn btn-primary text" id="ApproveOrders" onclick="loadFridgeOrder()">Approve Orders</a>
+    <a class = "btn btn-primary text" id="Report" onclick="showReportOptions()">Report</a>
+	
+   
   </div>
 </body>
-<div class ="jumbotron">Thissssss is the Admin Module</div>
