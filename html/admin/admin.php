@@ -3,7 +3,7 @@ session_start();
 // Check if the login button was clicked and the login value is in the POST array object
 
 //retrieve the users student number and password from the login form
-$conn_string= "host=localhost port=5432  user=postgres password=Ottawa2016!";
+$conn_string= "host=localhost port=5432  dbname=smartfridgedb user=postgres password=csi2132";
 
 //GET DB CONNECTION STRING 
 $dbconn = pg_connect($conn_string) or die ("Connection failed");
@@ -24,17 +24,58 @@ function getFridgeRequest()
     exit;
   } else {
     echo "<br>";
-    echo "<form target = 'meal_order_sent_frame' method='post' action='html/user/user.php?runFunction=orderMeal'>";
+    echo "<form target = 'order_approved_frame' method='post' action='html/admin/admin.php?runFunction=approveOrders'>";
     echo "<table style='width:100%'>";
-    echo "<tr style='font-weight:bold'><td>order_id</td>" . "<td>ing_id</td>" . "<td>chef_id</td>" . "<td>admin_id</td>" . "<td>approved</td>" . "<td>Accept?</td></tr>";
+    echo "<tr style='font-weight:bold'><td>order_id</td>" . "<td>count</td>" . "<td>ing_id</td>" . "<td>chef_id</td>" . "<td>admin_id</td>" . "<td>approved</td>" . "<td>Accept?</td></tr>";
     while ($row = pg_fetch_row($result)) {
-      echo "<tr><td>" . "$row[0]" . "</td><td>" . "$row[1]" . "</td><td>" . "$row[2]" . "</td><td>" . "$row[3]" . "</td><td>"."$row[4]"."</td><td><a class = 'btn btn-primary text' id='Yes' onclick='approve()''>Yes</a></td>";
+      echo "<tr><td>" . "$row[0]" . "</td><td>" . "$row[1]" . "</td><td>" . "$row[2]" . "</td><td>" . "$row[3]" . "</td><td>"."$row[4]"."</td><td>" . "$row[5]" . "</td>";
+      echo "<td>" . "<input type='checkbox' name='order_checkbox[]' value='$row[0],$row[1],$row[2]'>" . "</td>";
       echo "</tr>";
     }
     echo "</table>";
+    echo "<br><iframe name='order_approved_frame' height='200' width='1000' scrolling='yes' src='html/admin/order-approved-iframe-default.html'></iframe><br>";
+    echo "<input id='submit' name='submit' type='submit' value='Approve Orders' class='btn btn-primary'><br><br>";
     echo "</form>";
   }
 	
+}
+
+function approveOrders() {
+    if (!isset($_POST['order_checkbox'])) {
+        echo "You must select an order first!";
+    } else {
+        $selected_orders = $_POST['order_checkbox'];
+
+        if (empty($selected_orders)) { 
+            echo "You didn't select anything.";
+        } else {
+            $N = count($selected_orders);
+
+            for ($i = 0; $i < $N; $i++) {
+                // Get relevant attributes from checked boxes
+                $selected_orders_fields = explode(',',$selected_orders[$i]);
+                $selected_order_id = $selected_orders_fields[0];
+                $selected_order_count = (int) $selected_orders_fields[1];
+                $selected_order_ing_id = $selected_orders_fields[2];
+
+                // Approve order 
+                $order_query = "UPDATE FRIDGE_ORDER SET APPROVED = TRUE WHERE ORDER_ID = $selected_order_id;";
+                $order_query_result = pg_query($GLOBALS['dbconn'], $order_query);
+                if (!$order_query_result) {
+                    echo "An error occurred.\n";
+                }
+
+                // Update ingredient count
+                $update_ing_query = "UPDATE INGREDIENTS SET COUNT = COUNT + $selected_order_count WHERE ING_ID = '$selected_order_ing_id'";
+                $update_ing_query_res = pg_query($GLOBALS['dbconn'], $update_ing_query);
+                if (!$update_ing_query_res) {
+                    echo "An error occurred.\n";
+                }
+                
+                echo "Order $selected_order_id successfully approved!<br>";
+            }
+        }
+    }
 }
 
 function Expense(){
