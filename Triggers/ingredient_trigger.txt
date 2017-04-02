@@ -4,7 +4,7 @@ $BODY$
 BEGIN
     INSERT INTO
     FRIDGE_ORDER(count, ing_id, admin_id, approved) 
-    VALUES(5, NEW.ing_id, 111111, 'false');
+    VALUES(5, NEW.ing_id, 333333, 'false');
     RETURN new;
 END;
 $BODY$

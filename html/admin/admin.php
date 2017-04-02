@@ -138,64 +138,61 @@ function approveOrders() {
 
 // Displays expense report
 function Expense(){
-	$query1 = "select* from expenses";
-	$result = pg_query($GLOBALS['dbconn'], $query1);
- if (!$result) {
+	$meal_expense_query = "SELECT meal_id, SUM(price) FROM (SELECT DISTINCT meal_id, M.ing_id, price FROM MEAL_CONTAINS M, INGREDIENTS I WHERE (M.ing_id = I.ing_id) GROUP BY meal_id, M.ing_id, price ORDER BY price DESC) AS DERIVED_TABLE GROUP BY DERIVED_TABLE.meal_id;";
+  $meal_expense_query_res = pg_query($GLOBALS['dbconn'], $meal_expense_query);
+
+  if (!$meal_expense_query_res) {
     echo "An error occurred.\n";
     exit;
-  } else {
-    echo "<br>";
-    echo "<form target = 'meal_order_sent_frame' method='post' action='html/user/user.php?runFunction=orderMeal'>";
-    echo "<table style='width:100%'>";
-    echo "<tr style='font-weight:bold'><td>report_id</td>" . "<td>admin_id</td>" . "<td>ing_id</td>" . "<td>ingpricemoney</td></tr>";
-    while ($row = pg_fetch_row($result)) {
-      echo "<tr><td>" . "$row[0]" . "</td><td>" . "$row[1]" . "</td><td>" . "$row[2]" . "</td><td>" . "$row[3]" . "</td>";
-      echo "</tr>";
-    }
-    echo "</table>";
-    echo "</form>";
+  } 
+
+  $cnt = 1;
+  echo "<table style='width:100%'>";
+  echo "<tr style='font-weight:bold'><td>Rank</td> <td>meal_id</td> <td>Total Ingredient Cost ($)</td></tr>";
+  while ($row = pg_fetch_row($meal_expense_query_res)) {
+    echo "<tr><td>$cnt</td>" . "<td>" . "$row[0]" . "</td><td>" . "$row[1]" . "</td></tr>";
+    $cnt++;
   }
+  echo "</table>";
 }
 
 // Displays top three ingredients report
 function TopThree(){
-	$query1 = "select* from top_three_ings";
-	$result = pg_query($GLOBALS['dbconn'], $query1);
-  if (!$result) {
+  $top_three_ing_query = "SELECT ing_id, COUNT(ing_id) FROM MEAL_CONTAINS GROUP BY ing_id ORDER BY COUNT(ing_id) DESC;";
+  $top_three_ing_query_res = pg_query($GLOBALS['dbconn'], $top_three_ing_query);
+  
+  if (!$top_three_ing_query_res) {
     echo "An error occurred.\n";
     exit;
-  } else {
-    echo "<br>";
-    echo "<form target = 'meal_order_sent_frame' method='post' action='html/user/user.php?runFunction=orderMeal'>";
-    echo "<table style='width:100%'>";
-    echo "<tr style='font-weight:bold'><td>report_id</td>" . "<td>admin_id</td>" . "<td>ing_id</td>" . "<td>rank</td></tr>";
-    while ($row = pg_fetch_row($result)) {
-      echo "<tr><td>" . "$row[0]" . "</td><td>" . "$row[1]" . "</td><td>" . "$row[2]" . "</td><td>" . "$row[3]" . "</td>";
-      echo "</tr>";
-    }
-    echo "</table>";
-    echo "</form>";
+  } 
+  
+  $cnt = 1;
+  echo "<table style='width:100%'>";
+  echo "<tr style='font-weight:bold'><td>Rank</td> <td>ing_id</td> <td># times used in a meal</td></tr>";
+  while (($row = pg_fetch_row($top_three_ing_query_res)) && $cnt <= 3) {
+    echo "<tr><td>$cnt</td>" . "<td>" . "$row[0]" . "</td><td>" . "$row[1]" . "</td></tr>";
+    $cnt++;
   }
+  echo "</table>";
 }
+  
 
 // Displays frequently requested meals report
 function FreqRequested(){
-	$query1= "select* from freq_req_meals";
-	$result = pg_query($GLOBALS['dbconn'], $query1);
-  if (!$result) {
+  $top_meals_query = "SELECT meal_id, COUNT(meal_id) FROM CHEF_ORDER GROUP BY meal_id ORDER BY COUNT(meal_id) DESC";
+  $top_meals_query_res = pg_query($GLOBALS['dbconn'], $top_meals_query);
+
+  if (!$top_meals_query_res) {
     echo "An error occurred.\n";
     exit;
-  } else {
-    echo "<br>";
-    echo "<form target = 'meal_order_sent_frame' method='post' action='html/user/user.php?runFunction=orderMeal'>";
-    echo "<table style='width:100%'>";
-    echo "<tr style='font-weight:bold'><td>report_id</td>" . "<td>admin_id</td>" . "<td>ing_id</td>" . "<td>count </td></tr>";
-    while ($row = pg_fetch_row($result)) {
-      echo "<tr><td>" . "$row[0]" . "</td><td>" . "$row[1]" . "</td><td>" . "$row[2]" . "</td><td>" . "$row[3]" . "</td>";
-      echo "</tr>";
-    }
-    echo "</table>";
-    echo "</form>";
+  } 
+
+  $cnt = 1;
+  echo "<table style='width:100%'>";
+  echo "<tr style='font-weight:bold'><td>Rank</td> <td>meal_id</td> <td># ordered</td></tr>";
+  while ($row = pg_fetch_row($top_meals_query_res)) {
+    echo "<tr><td>$cnt</td>" . "<td>" . "$row[0]" . "</td><td>" . "$row[1]" . "</td></tr>";
+    $cnt++;
   }
 }
 

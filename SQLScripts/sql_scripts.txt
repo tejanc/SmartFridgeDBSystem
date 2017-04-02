@@ -81,13 +81,11 @@ CREATE TABLE REPORT (
 );
 
 CREATE TABLE TOP_THREE_INGS (
-    Report_id CHAR(6)   NOT NULL,
+    Report_id SERIAL    NOT NULL,
     Admin_id  CHAR(6)   NOT NULL,
     Ing_id    CHAR(6)   NOT NULL,
     Rank      INTEGER   NOT NULL,
     PRIMARY KEY (Report_id, Admin_id, Ing_id),
-    FOREIGN KEY (Report_id) REFERENCES
-      REPORT (Report_id),
     FOREIGN KEY (Admin_id) REFERENCES 
       USERS(User_id),
     FOREIGN KEY (Ing_id) REFERENCES 
