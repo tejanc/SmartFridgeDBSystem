@@ -2,7 +2,7 @@
 session_start();
 
 // Retrieve the users credentials for DB connection
-$conn_string= "host=localhost port=5432 dbname=postgres user=postgres password=postgres";
+$conn_string= "host=localhost port=5432 dbname=smartfridgedb user=postgres password=csi2132";
 
 // GET DB CONNECTION STRING
 $dbconn = pg_connect($conn_string) or die ("Connection failed");
@@ -233,7 +233,6 @@ function showDepletedIngredients() {
 		echo "</form>";
 	}
 }
-
 
 /*
 	Shows the Chef a report of meals that belong to a required cuisine and will be able to
