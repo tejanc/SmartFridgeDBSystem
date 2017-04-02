@@ -37,7 +37,7 @@
 
     function loadAdminOrder() {
       var xmlhttp=makeRequestObject();
-      var file = 'html/admin/admin.php?runFunction=makeAdminOrder';
+      var file = 'html/admin/admin.php?runFunction=showDepletedIngredients';
       xmlhttp.open('GET', file, true);
       xmlhttp.onreadystatechange=function() {
         if (xmlhttp.readyState==4 && xmlhttp.status == 200) { 
@@ -135,10 +135,8 @@
     Please select an option:
     </p>
     </div>
-    <a class = "btn btn-primary text" id="AdminOrderBtn" onclick="loadFridgeOrder()">Place Orders</a>
+    <a class = "btn btn-primary text" id="AdminOrderBtn" onclick="loadAdminOrder()">Place Orders</a>
     <a class = "btn btn-primary text" id="ApproveOrders" onclick="loadFridgeOrder()">Approve Orders</a>
     <a class = "btn btn-primary text" id="Report" onclick="showReportOptions()">Report</a>
-	
-   
   </div>
 </body>

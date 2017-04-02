@@ -234,7 +234,6 @@ function showDepletedIngredients() {
 	}
 }
 
-
 /*
 	Shows the Chef a report of meals that belong to a required cuisine and will be able to
 	see whether the ingredients of any meal are available or not. Simple meals can be entered.
@@ -252,7 +251,6 @@ function reports() {
 }
 
 function selectCuisineMenu() {
-	
 	// Selects all cuisines from Meals and displays to the chef.
 	$cuisine_query = "SELECT DISTINCT cuisine FROM MEALS";
 	$cuisine_query_res = pg_query($GLOBALS['dbconn'],$cuisine_query);

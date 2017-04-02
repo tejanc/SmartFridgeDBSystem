@@ -13,9 +13,62 @@ if(isset($_GET['runFunction']) && function_exists($_GET['runFunction']))
 else
   echo "Function not found or wrong input"; 
 
-function makeAdminOrder() {
+function showDepletedIngredients() {
+  $no_ing_query = "SELECT * FROM INGREDIENTS";
+    $no_ing_query_res = pg_query($GLOBALS['dbconn'], $no_ing_query);
+    
+    echo "<br><h1>Place an order</h1></br>";
+    echo "<form target = 'place_order_sent_frame' method='post' action='html/admin/admin.php?runFunction=placeOrder'>";
+    if (!$no_ing_query_res) {
+      echo "An error occurred.\n";
+      exit;
+    } else {
+      echo "<br>";
+      echo "<table style='width:100%'>";
+      echo "<tr style='font-weight:bold'> <td>Ingredient Id</td>" . "<td>Name</td>" . "<td>Expiry Date</td>" . "<td>Price</td>" . "<td>Count</td>" . "<td>Category</td>" . "<td>Select</td>" . "</tr>";
+      while ($row = pg_fetch_row($no_ing_query_res)) {
+        echo "<tr><td>" . "$row[0]" . "</td><td>" . "$row[1]" . "</td><td>" . "$row[2]" . "</td><td>" . "$row[3]" . "</td><td>" . "$row[4]" . "</td><td>" . "$row[5]" . "</td>";
+        echo "<td>" . "<input type='text' name='quantity_requested[]'>" . "</td>";
+        echo "</tr>";
+      }
+      echo "</table>";
+      echo "<br><iframe name='place_order_sent_frame' height='50' width='1000' scrolling='no' src='html/chef/place-order-iframe-default.html'></iframe>";
+      echo "<br><input id='submit' name='submit' type='submit' value='Place Order' class='btn btn-primary'><br><br>";
+      echo "</div>";
+      echo "</form>";
+    }
+}  
 
+function placeOrder() {
+  if (isset($_POST['quantity_requested']))
+    $selected_quantities = $_POST['quantity_requested'];
   
+  if (empty($selected_quantities)) { 
+        echo "You didn't select anything.";
+    } else {
+    // Create a FRIDGE_ORDER
+    $N = count($selected_quantities);
+    
+    // Get list of depleted ingredients again
+    // $N = # of rows
+    $no_ing_query = "SELECT * FROM INGREDIENTS;";
+    //$no_ing_query = "SELECT * FROM INGREDIENTS WHERE Count = '0'";
+    $no_ing_query_res = pg_query($GLOBALS['dbconn'], $no_ing_query);
+
+    for ($i = 0; $i < $N; $i++) {     
+      // Fetch current depleted ingredient row
+      $row = pg_fetch_row($no_ing_query_res);
+
+      if (is_numeric($selected_quantities[$i]) && $selected_quantities[$i] > 0) {
+        $order_ing_query = "UPDATE INGREDIENTS SET COUNT = COUNT + $selected_quantities[$i] WHERE ING_ID = '$row[0]'";
+        $order_ing_query_res = pg_query($GLOBALS['dbconn'], $order_ing_query);
+          if (!$order_ing_query_res) {
+            echo "An error occurred.\n";
+          }
+        echo "Successfully ordered $selected_quantities[$i] of ingredient $row[1]";
+      }  
+    }
+  }
 }
 
 // Displays all fridge_orders that haven't been approved for approval
