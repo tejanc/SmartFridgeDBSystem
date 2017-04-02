@@ -19,12 +19,6 @@
       return xmlhttp;
     }
     
-    // Returns to the default regular user landing page
-    function back() {
-      jQuery('#master').load('html/user/user-land.html');
-    }
-
-    // Loads the buttons for the ordering ingredient menu 
     function loadFridgeOrder() {
 	  var xmlhttp=makeRequestObject();
 	  var file = 'html/admin/admin.php?runFunction=getFridgeRequest';
@@ -33,68 +27,28 @@
         if (xmlhttp.readyState==4 && xmlhttp.status == 200) { 
             var content = xmlhttp.responseText; 
             if( content ){ 
-			console.log(content);	
-            document.getElementById('info').innerHTML = content; 
-              //jQuery('#btn-div').empty();
+			        console.log(content);	
+              document.getElementById('info').innerHTML = content; 
             }
         }
       }
       xmlhttp.send(null); 			
-    //    jQuery('#info').load("html/user/user-food.html");
-    //    jQuery('#btn-div').empty();
     }
 
-    // Allows the user to search for an ingredient by name
-    function getFoodByName() {
+    function loadAdminOrder() {
       var xmlhttp=makeRequestObject();
-      var file = 'html/user/user.php?runFunction=getFoodByName'; 
+      var file = 'html/admin/admin.php?runFunction=makeAdminOrder';
       xmlhttp.open('GET', file, true);
       xmlhttp.onreadystatechange=function() {
         if (xmlhttp.readyState==4 && xmlhttp.status == 200) { 
             var content = xmlhttp.responseText; 
             if( content ){ 
-              document.getElementById('.jumbotron').innerHTML = content; 
-              //jQuery('#btn-div').empty();
+              console.log(content); 
+              document.getElementById('info').innerHTML = content; 
             }
         }
       }
       xmlhttp.send(null); 
-    }
-
-    // Allows the user to search for an ingredient by category
-    function getFoodByCategory() {
-      var xmlhttp=makeRequestObject();
-      var file = 'html/user/user.php?runFunction=getFoodByCategory'; 
-      xmlhttp.open('GET', file, true);
-      xmlhttp.onreadystatechange=function() {
-        if (xmlhttp.readyState==4 && xmlhttp.status == 200) { 
-            var content = xmlhttp.responseText; 
-			console.log(content);
-            if( content ){ 
-              document.getElementById('info').innerHTML = content; 
-              jQuery('#btn-div').empty();
-            }
-        }
-      }
-      xmlhttp.send(null); 
-    }
-
-    // Queries the database for a list of meals for order and displays the result
-    function getMeals() {
-      var xmlhttp=makeRequestObject();
-      var file = 'html/user/user.php?runFunction=getMeals'; 
-      xmlhttp.open('GET', file, true);
-      xmlhttp.onreadystatechange=function() {
-        if (xmlhttp.readyState==4 && xmlhttp.status == 200) { 
-            var content = xmlhttp.responseText; 
-			
-            if( content ){ 
-              document.getElementById('info').innerHTML = content; 
-              jQuery('#btn-div').empty();
-            }
-        }
-      }
-      xmlhttp.send(null);
     }
 	
 	function FreqRequested(){
@@ -113,6 +67,7 @@
 	}
 	xmlhttp.send(null); 
 	}
+
 	function TopThree()
 	{
 	 var xmlhttp=makeRequestObject();
@@ -130,6 +85,7 @@
 	  }
 	   xmlhttp.send(null); 
 	}
+
 	function Expense()
 	{console.log("hi");
 	 var xmlhttp=makeRequestObject();
@@ -147,10 +103,9 @@
 	 }
 	  xmlhttp.send(null); 
 	}
+
 	function showReportOptions() {
 	document.getElementById('info').innerHTML = "<a class='btn btn-primary' onclick='TopThree()'>Show top three Ingredients</a><a class='btn btn-primary' onclick='Expense()'>Show Expense Report</a><a class='btn btn-primary' onclick='FreqRequested()'>Freq Requested Report</a>"; 
-	
-	
 	}
   </script>
 
@@ -180,7 +135,7 @@
     Please select an option:
     </p>
     </div>
-    <a class = "btn btn-primary text" id="getfoodbtn" onclick="loadFridgeOrder()">Place Orders</a>
+    <a class = "btn btn-primary text" id="AdminOrderBtn" onclick="loadFridgeOrder()">Place Orders</a>
     <a class = "btn btn-primary text" id="ApproveOrders" onclick="loadFridgeOrder()">Approve Orders</a>
     <a class = "btn btn-primary text" id="Report" onclick="showReportOptions()">Report</a>
 	

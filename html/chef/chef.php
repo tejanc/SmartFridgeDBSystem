@@ -14,7 +14,7 @@ else
 	echo "Function not found or wrong input";
 
 function createMeal() {
-	echo "<br>";
+	echo "<br><h1>Create a meal</h1><br>";
     echo "<form target = 'meal_create_sent_frame' method='post' action='html/chef/chef.php?runFunction=addMeal'>";
 	echo "<br>Chef ID: &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp";
 	echo "<input type = 'text' name = 'chef_id_str'><br>"; 
@@ -136,22 +136,12 @@ function getMeals() {
 		5. ADMIN		---- < APPROVES		> ---- FRIDGE_ORDER
 */
 function placeOrder() {
-	
+
 	if (isset($_POST['quantity_requested']))
 		$selected_quantities = $_POST['quantity_requested'];
 	
-	// sets the chef_id already set in the Database
-	$chef_id_query = "SELECT user_id FROM USERS WHERE cflag = '1'";
-    $chef_id_query_res = pg_query($GLOBALS['dbconn'], $chef_id_query);
-	if (!$chef_id_query_res) {
-		echo "An error occurred.\n";
-	} else {
-		$chef_id_query_row = pg_fetch_row($chef_id_query_res);
-		$chef_id_str = (int) $chef_id_query_row[0];
-	}
-	
 	// sets the admin_id already set in the Database
-	$admin_id_query = "SELECT user_id FROM USERS WHERE cflag = '1'";
+	$admin_id_query = "SELECT user_id FROM USERS WHERE aflag = '1'";
     $admin_id_query_res = pg_query($GLOBALS['dbconn'], $admin_id_query);
 	if (!$admin_id_query_res) {
 		echo "An error occurred.\n";
@@ -172,13 +162,12 @@ function placeOrder() {
 		$no_ing_query = "SELECT * FROM INGREDIENTS WHERE Count = '0'";
 		$no_ing_query_res = pg_query($GLOBALS['dbconn'], $no_ing_query);
 
-
 		for ($i = 0; $i < $N; $i++) {			
 			// Fetch current depleted ingredient row
 			$row = pg_fetch_row($no_ing_query_res);
 
 			if (is_numeric($selected_quantities[$i]) && $selected_quantities[$i] > 0) {
-			$ing_order_query = "INSERT INTO FRIDGE_ORDER(Ing_id, Count, Chef_id, Admin_id, Approved) VALUES (" . $row[0] . "," . $selected_quantities[$i] . "," . $chef_id_str . "," . $admin_id_str . ", false);";
+			$ing_order_query = "INSERT INTO FRIDGE_ORDER(Ing_id, Count, Admin_id, Approved) VALUES (" . $row[0] . "," . $selected_quantities[$i] . "," . $admin_id_str . ", false);";
 			
 				$ing_order_query_res = pg_query($GLOBALS['dbconn'], $ing_order_query);
 			
@@ -202,9 +191,9 @@ function showFridgeOrder() {
 	} else {
 		echo "<br>";
 		echo "<table style='width:100%'>";
-		echo "<tr style='font-weight:bold'><td>Order ID</td>" . "<td>Count</td>" . "<td>Ing ID</td>" . "<td>Chef ID</td>" . "</tr>";
+		echo "<tr style='font-weight:bold'><td>Order ID</td>" . "<td>Count</td>" . "<td>Ing ID</td>" . "<td>Admin ID</td>" . "<td>Approved</td>" . "</tr>";
 		while ($row = pg_fetch_row($fridge_order_query_res)) {
-		  echo "<tr><td>" . "$row[0]" . "</td><td>" . "$row[1]" . "</td><td>" . "$row[2]" . "</td><td>" . "$row[3]" . "</td>";
+		  echo "<tr><td>" . "$row[0]" . "</td><td>" . "$row[1]" . "</td><td>" . "$row[2]" . "</td><td>" . "$row[3]" . "</td><td>" . "$row[4]" . "</td>";
 		  echo "</tr>";
 		}
 		echo "</table>";
@@ -245,8 +234,52 @@ function showDepletedIngredients() {
 	}
 }
 
+
+/*
+	Shows the Chef a report of meals that belong to a required cuisine and will be able to
+	see whether the ingredients of any meal are available or not. Simple meals can be entered.
+	
+	INPUT: Cuisine
+	OUTPUT: Report consisting of meals belonging to that cuisine.
+*/
 function reports() {
 	
+	echo "<br><h1>Cuisine Reports</h1>";
+	echo "<p>Welcome to the Cuisine report! The following is a report of cuisines that you can select.</p>";
+	echo "<p>Use the View Meal option to see what meals are available for that cuisine.</p>";
+	
+	selectCuisineMenu();
+}
+
+function selectCuisineMenu() {
+	
+	// Selects all cuisines from Meals and displays to the chef.
+	$cuisine_query = "SELECT DISTINCT cuisine FROM MEALS";
+	$cuisine_query_res = pg_query($GLOBALS['dbconn'],$cuisine_query);
+	//echo "<form target = 'view_cusine_meals' method='post' action='html/chef/chef.php?runFunction=cuisineMealReport'>";
+	if (!$cuisine_query_res) {
+		echo "An error occurred.\n";
+		exit;
+	} else {
+		echo "<br>";
+		echo "<table style='width:100%'>";
+		echo "<tr style='font-weight:bold'><td>Available Cuisines</td>" . "<td>Select</td>" . "</tr>";
+		while ($row = pg_fetch_row($cuisine_query_res)) {
+		  echo "<tr><td>" . "$row[0]" . "</td>";
+		  echo "<td>" . "<input type='radio' name='cuisine_radio' value='$row[0]'>" . "</td>";
+		  echo "</tr>";
+		}
+		echo "</table>";
+		echo "<br><a class = 'btn btn-primary text' id='backbtn' onclick='back()''>Back</a> &nbsp;";
+		echo "<input id='submit' name='submit' type='submit' value='View Meals' class='btn btn-primary'><br><br>";
+		echo "</form>";
+	}
+	
+	echo "<br><h2></h2><br>";
+}
+
+function cuisineMealReport() {
+	echo "<br><h1>Hi!</h1><br>";
 }
 
 ?>
