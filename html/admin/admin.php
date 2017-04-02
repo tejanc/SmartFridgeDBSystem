@@ -138,7 +138,7 @@ function approveOrders() {
 
 // Displays expense report
 function Expense(){
-	$meal_expense_query = "SELECT meal_id, SUM(price) FROM (SELECT DISTINCT meal_id, M.ing_id, price FROM MEAL_CONTAINS M, INGREDIENTS I WHERE (M.ing_id = I.ing_id) GROUP BY meal_id, M.ing_id, price ORDER BY price DESC) AS DERIVED_TABLE GROUP BY DERIVED_TABLE.meal_id;";
+	$meal_expense_query = "SELECT meal_id, SUM(price) FROM (SELECT DISTINCT meal_id, M.ing_id, price FROM MEAL_CONTAINS M, INGREDIENTS I WHERE (M.ing_id = I.ing_id) GROUP BY meal_id, M.ing_id, price ORDER BY price DESC) AS DERIVED_TABLE GROUP BY DERIVED_TABLE.meal_id ORDER BY SUM(price) DESC;";
   $meal_expense_query_res = pg_query($GLOBALS['dbconn'], $meal_expense_query);
 
   if (!$meal_expense_query_res) {
