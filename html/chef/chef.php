@@ -41,7 +41,7 @@ function createMeal() {
 		  echo "</tr>";
 		}
 		echo "</table>";
-		echo "<br><iframe name='meal_create_sent_frame' height='200' width='1000' scrolling='yes' src='html/chef/create-meal-iframe-default.html'></iframe>";
+		echo "<br><iframe name='meal_create_sent_frame' height='50' width='1000' scrolling='yes' src='html/chef/create-meal-iframe-default.html'></iframe>";
 		echo "<br><a class = 'btn btn-primary text' id='backbtn' onclick='back()''>Back</a> &nbsp;";
 		echo "<input id='submit' name='submit' type='submit' value='Create Meal' class='btn btn-primary'><br><br>";
 		echo "</div>";
@@ -178,27 +178,6 @@ function placeOrder() {
 		}
 		echo "Successfully created fridge order!";
 	}
-
-	//showFridgeOrder();
-}
-
-function showFridgeOrder() {
-	$fridge_order_query = "SELECT * FROM FRIDGE_ORDER";
-	$fridge_order_query_res = pg_query($GLOBALS['dbconn'],$fridge_order_query);
-	if (!$fridge_order_query_res) {
-		echo "An error occurred.\n";
-		exit;
-	} else {
-		echo "<br>";
-		echo "<table style='width:100%'>";
-		echo "<tr style='font-weight:bold'><td>Order ID</td>" . "<td>Count</td>" . "<td>Ing ID</td>" . "<td>Admin ID</td>" . "<td>Approved</td>" . "</tr>";
-		while ($row = pg_fetch_row($fridge_order_query_res)) {
-		  echo "<tr><td>" . "$row[0]" . "</td><td>" . "$row[1]" . "</td><td>" . "$row[2]" . "</td><td>" . "$row[3]" . "</td><td>" . "$row[4]" . "</td>";
-		  echo "</tr>";
-		}
-		echo "</table>";
-		echo "<br><iframe name='meal_order_sent_frame' height='35' width='1000' scrolling='yes' src='html/user/place-order-iframe-default.html'></iframe>";
-	}
 }
 
 /*
@@ -250,12 +229,14 @@ function reports() {
 	selectCuisineMenu();
 }
 
+/*
+	Select cuisine form for the Chef
+*/
 function selectCuisineMenu() {
-	
-	// Selects all cuisines from Meals and displays to the chef.
+
 	$cuisine_query = "SELECT DISTINCT cuisine FROM MEALS";
 	$cuisine_query_res = pg_query($GLOBALS['dbconn'],$cuisine_query);
-	//echo "<form target = 'view_cusine_meals' method='post' action='html/chef/chef.php?runFunction=cuisineMealReport'>";
+	echo "<form target = 'view_cusine_meals' method='post' action='html/chef/chef.php?runFunction=cuisineMealReport'>";
 	if (!$cuisine_query_res) {
 		echo "An error occurred.\n";
 		exit;
@@ -269,17 +250,87 @@ function selectCuisineMenu() {
 		  echo "</tr>";
 		}
 		echo "</table>";
+		echo "<br><iframe name='view_cusine_meals' height='400' width='1000' scrolling='yes' src='html/chef/cuisine-meal-iframe-default.html'></iframe>";
 		echo "<br><a class = 'btn btn-primary text' id='backbtn' onclick='back()''>Back</a> &nbsp;";
 		echo "<input id='submit' name='submit' type='submit' value='View Meals' class='btn btn-primary'><br><br>";
 		echo "</form>";
 	}
-	
-	echo "<br><h2></h2><br>";
 }
 
+/*
+	Report containing meals belonging to the cuisine upon hitting View Meals
+*/
 function cuisineMealReport() {
-	echo "<br><h1>Hi!</h1><br>";
+	
+	if (isset($_POST['cuisine_radio'])) {
+		// Get cuisine string from the selected radio
+		$cuisine = $_POST['cuisine_radio'];
+	
+		$cuisine_meal_query = "SELECT * FROM MEALS WHERE cuisine = '$cuisine'";
+		$cuisine_meal_query_res = pg_query($GLOBALS['dbconn'], $cuisine_meal_query);
+		
+		if (!$cuisine_meal_query_res) {
+			echo "An error occurred.\n";
+			exit;
+		} else {
+			
+			$N = count($cuisine_meal_query_res);
+			//echo "$N meal(s) related to cuisine: $cuisine was retrieved.";
+			for ($i = 0; $i < $N; $i++) { // for each meal get ingredients and show table
+				while ($row = pg_fetch_row($cuisine_meal_query_res)) {
+					// for each meal in this cuisine, show details.
+					echo"<br>";
+					$meal_id = $row[0];
+					//echo"mealId: $meal_id<br>";
+					$chef_id = $row[1];
+					//echo"chefId:$chef_id<br>";
+					$name = $row[2];
+					//echo"name: $name<br>";
+					$descr = $row[3];
+					//echo"descr: $descr<br>";
+					printTableMealInfo($meal_id,$chef_id,$name,$descr);
+				}
+			}			
+		}
+	} else {
+		echo "You did not select a cuisine.";
+	}
 }
+
+/*
+	Prints all the meal and ingredient details belonging to a given cuisine.
+*/
+function printTableMealInfo($meal_id, $chef_id, $name, $desc) {
+	
+	$meal_contains_query = "SELECT ing_id FROM MEAL_CONTAINS WHERE meal_id = '$meal_id'";
+	$meal_contains_query_res = pg_query($GLOBALS['dbconn'],$meal_contains_query);
+	if (!$meal_contains_query_res) {
+		echo "An error occurred.\n";
+		exit;
+	} else {
+		echo "<br>";
+		echo "<table style='width:100%'>";
+		echo "<tr style='font-weight:bold'><td>Meal ID</td>" . "<td>Name</td>" . "<td>Description</td>" . "<td>Ingredient Name</td>" . "<td>Count</td>" . "<td>Category</td>" . "</tr>";
+		while ($row = pg_fetch_row($meal_contains_query_res)) { // now we have all the ingredients IDs belonging to this meal
+			
+			$ing_query = "SELECT * FROM INGREDIENTS WHERE ing_id = '$row[0]'";
+			$ing_query_res = pg_query($GLOBALS['dbconn'],$ing_query);
+			
+			if (!$ing_query_res) {
+				echo "An error occured.\n";
+				exit;
+			} else {
+					while ($ing_row = pg_fetch_row($ing_query_res)) {
+					echo "<tr><td>" . "$meal_id" . "</td><td>" . "$name" . "</td><td>" . "$desc" . "</td><td>" . "$ing_row[1]" . "</td><td>" . "$ing_row[4]" . "</td><td>" . "$ing_row[5]" . "</td>";
+					echo "</tr>";
+				}
+			}
+		}
+		echo "</table>";
+		echo "</form>";
+	}
+}
+
 
 ?>
 
