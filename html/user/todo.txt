@@ -1,0 +1,4 @@
+- item should be removed from db if count goes to 0, or
+ask the user if they would like to order more
+
+- 

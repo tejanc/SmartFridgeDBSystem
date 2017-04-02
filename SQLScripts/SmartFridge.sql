@@ -1,4 +1,4 @@
--- Database: "SmartFridge"
+﻿-- Database: "SmartFridge"
 
 -- DROP DATABASE "SmartFridge";
 
@@ -81,11 +81,13 @@ CREATE TABLE REPORT (
 );
 
 CREATE TABLE TOP_THREE_INGS (
-    Report_id SERIAL    NOT NULL,
+    Report_id CHAR(6)   NOT NULL,
     Admin_id  CHAR(6)   NOT NULL,
     Ing_id    CHAR(6)   NOT NULL,
     Rank      INTEGER   NOT NULL,
     PRIMARY KEY (Report_id, Admin_id, Ing_id),
+    FOREIGN KEY (Report_id) REFERENCES
+      REPORT (Report_id),
     FOREIGN KEY (Admin_id) REFERENCES 
       USERS(User_id),
     FOREIGN KEY (Ing_id) REFERENCES 
@@ -148,8 +150,8 @@ CREATE TABLE CHEF_ORDER (
 );
 
 CREATE TABLE FRIDGE_ORDER (
-    Order_id    SERIAL   NOT NULL,
-    Count 	  	INTEGER   NOT NULL,
+    Order_id    SERIAL    NOT NULL,
+    Count		INTEGER   NOT NULL,
     Ing_id      CHAR(6)   NOT NULL,
     Admin_id    CHAR(6)   NOT NULL,
     Approved    BOOLEAN   NOT NULL,
@@ -283,11 +285,8 @@ INSERT INTO ORDER_MEALS(Meal_id, Order_id)
 VALUES ('444444', '777777');
 
 /* Create a FRIDGE_ORDER for some more Tomatoes */
-
-INSERT INTO FRIDGE_ORDER(Order_id, Ing_id, count, Chef_id, Admin_id, Approved)
-VALUES ('777778', '555555', 1, '111111', '333333', FALSE);
-
-
+INSERT INTO FRIDGE_ORDER(Order_id, count, Ing_id, Admin_id, Approved)
+VALUES ('777778', 1, '555555', '333333', FALSE);
 
 /* DROP ALL TABLES */
 DROP TABLE USERS, TOP_THREE_INGS, EXPENSES, REPORT,

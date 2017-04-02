@@ -251,6 +251,7 @@ function reports() {
 }
 
 function selectCuisineMenu() {
+	
 	// Selects all cuisines from Meals and displays to the chef.
 	$cuisine_query = "SELECT DISTINCT cuisine FROM MEALS";
 	$cuisine_query_res = pg_query($GLOBALS['dbconn'],$cuisine_query);
