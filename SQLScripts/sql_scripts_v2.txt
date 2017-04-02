@@ -107,16 +107,6 @@ CREATE TABLE FRIDGE_ORDER (
       USERS (User_id)
 );
 
-CREATE TABLE ORDER_MEALS (
-    Meal_id     CHAR(6)   NOT NULL,
-    Order_id    SERIAL   NOT NULL,
-    PRIMARY KEY (Meal_id, Order_id),
-    FOREIGN KEY (Meal_id) REFERENCES
-      MEALS (Meal_id),
-    FOREIGN KEY (Order_id) REFERENCES
-      CHEF_ORDER (Order_id)
-); 
-
 /* Add three users to the database: 
    1. John Smith - Chef
    2. Jane Doe - Regular user
