@@ -1,5 +1,4 @@
 # SmartFridgeDBSystem
-=====================
 
 A refrigerator which has been programmed to know the products stored inside and keep track of the stock. 
 It is also equipped to automatically determine when a food item needs to be replenished.
@@ -20,10 +19,10 @@ Each meal will have an id, a name, description, cuisine, and ingredients.
 ## Installation
 ---------------
 
-Install $SmartFridgeDBSystem by running:
-First run your server using XAMPP.
-Edit the login credientials in the .php files to correspond with PGAdmin
-If running locally, run by using http://localhost/SmartFridgeDBSystem/demo.html
+Install SmartFridgeDBSystem by running:
+*Run your server using XAMPP.
+*Edit the login credientials in the .php files to correspond with PGAdmin
+*If running locally, run by using http://localhost/SmartFridgeDBSystem/demo.html
 
 ## Contribute
 -------------
